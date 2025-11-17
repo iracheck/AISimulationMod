@@ -65,3 +65,6 @@ All of these features are __planned__. When or in what state they arrive in is u
 - [x] Ped limits per faction is ~25 default, but only 13-16 peds spawn (why?)
 - [x] NPCs far from the player don't have their AI update
 - [x] Incomplete .ini files cause a crash
+
+## Open Source Information
+This mod is open source. You are free to redistribute it as long as you give proper credit (see the LICENSE file), however if you'd also like to push your changes directly to this repo that would work too! 

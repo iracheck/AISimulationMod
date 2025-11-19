@@ -1,7 +1,9 @@
-# Gang War Sandbox
+# Dynamic AI Simulation "GangWarSandbox"
 
-A multi-gamemode combat utility for Grand Theft Auto V.<br>
-Simulate massive AI battles with 100+ peds, survive waves of enemies, or build your own custom battlefield.
+> Started as a latent research interest in optimization & AI, GangWarSandbox is now a fully-fledged combat utility for Grand Theft Auto V.
+> Development is on hold until December 2026.
+
+Create your battlefield anywhere on the map and watch the AI fight for control of the map, then join in yourself for extra chaos.. <br>
 
 # Installation
 
@@ -29,7 +31,7 @@ File Paths:
 
 You can use the following links to find ped or vehicle models: <br>
 https://docs.fivem.net/docs/game-references/vehicle-references/vehicle-models/  <br>
-https://wiki.rage.mp/wiki/Peds
+https://wiki.rage.mp/wiki/Peds <br>
 https://docs.fivem.net/docs/game-references/weapon-models/
 
 

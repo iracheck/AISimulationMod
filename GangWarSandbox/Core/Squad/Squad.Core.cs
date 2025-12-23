@@ -30,6 +30,7 @@ namespace GangWarSandbox.Peds
 
         // Constants
         static float SQUAD_ATTACK_RANGE = GWSettings.AI_ATTACK_RADIUS;
+        static int TARGET_REFIND_TIME = 1000; // time before cached targets are attempted to be refound (in milliseconds)
 
         // Squad Logic begins here
 

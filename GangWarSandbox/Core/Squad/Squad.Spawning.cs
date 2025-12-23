@@ -85,6 +85,7 @@ namespace GangWarSandbox.Peds
                     if (Members[i].AttachedBlip != null && Members[i].AttachedBlip.Exists())
                         Members[i].AttachedBlip.Delete();
 
+                    PedTargetCache.Remove(Members[i]); // remove them from the cache, to free up some memory
                     Members.RemoveAt(i);
                 }
             }

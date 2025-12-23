@@ -13,6 +13,7 @@ using GTA.Native;
 using System.Drawing;
 using System.Runtime.InteropServices.WindowsRuntime;
 using GangWarSandbox.Utilities;
+using System.CodeDom;
 
 namespace GangWarSandbox.Peds
 {
@@ -94,7 +95,7 @@ namespace GangWarSandbox.Peds
 
         private bool PedAI_Combat(Ped ped)
         {
-            if (!PedTargetCache.ContainsKey(ped)) PedTargetCache.Add(ped, (null, 0)); // ped target cache usage: (current ped, (cached target, timestamp))
+            if (!PedTargetCache.ContainsKey(ped) && ped.IsAlive) PedTargetCache.Add(ped, (null, 0)); // ped target cache usage: (current ped, (cached target, timestamp))
 
             Ped cachedEnemy = PedTargetCache[ped].enemy;
             int lastCheckedTime = PedTargetCache[ped].timestamp;
@@ -102,7 +103,7 @@ namespace GangWarSandbox.Peds
             Ped nearbyEnemy = cachedEnemy;
 
             // Handle ped target caching and refinding
-            if (Game.GameTime - lastCheckedTime > 1000 || ped.IsInVehicle() || nearbyEnemy == null || nearbyEnemy.IsDead || nearbyEnemy.Position.DistanceTo(ped.Position) > SQUAD_ATTACK_RANGE)
+            if (Game.GameTime - lastCheckedTime > TARGET_REFIND_TIME || ped.IsInVehicle() || nearbyEnemy == null || nearbyEnemy.IsDead || nearbyEnemy.Position.DistanceTo(ped.Position) > SQUAD_ATTACK_RANGE)
             {
                 Vector3 source = ped.Position;
                 if (ped.IsInVehicle()) source = ped.CurrentVehicle.Position;
@@ -111,9 +112,9 @@ namespace GangWarSandbox.Peds
                 PedTargetCache[ped] = (nearbyEnemy, Game.GameTime); // update the cache with the new target and timestamp
             }
 
-            bool safeToExitVehicle = CanGetOutVehicle(ped);
+            bool canExitVehicle = CanGetOutVehicle(ped);
 
-            if ( ped.IsInVehicle() && nearbyEnemy != null && (ped.IsInCombat || SquadVehicle.Position.DistanceTo(nearbyEnemy.Position) < 50f) && safeToExitVehicle )
+            if ( ped.IsInVehicle() && nearbyEnemy != null && (ped.IsInCombat || SquadVehicle.Position.DistanceTo(nearbyEnemy.Position) < 50f) && canExitVehicle )
             {
                 ped.Task.FightAgainst(nearbyEnemy);
                 PedAssignments[ped] = PedAssignment.ExitVehicle;
@@ -160,7 +161,7 @@ namespace GangWarSandbox.Peds
                         ped.Task.VehicleShootAtPed(nearbyEnemy);
                         PedAssignments[ped] = PedAssignment.VehicleChase;
                     }
-                    else if (nearbyEnemy.Position.DistanceTo(ped.Position) < 20f && safeToExitVehicle)
+                    else if (nearbyEnemy.Position.DistanceTo(ped.Position) < 20f && canExitVehicle)
                     {
                         ped.Task.LeaveVehicle(LeaveVehicleFlags.LeaveDoorOpen);
                         PedAssignments[ped] = PedAssignment.ExitVehicle;

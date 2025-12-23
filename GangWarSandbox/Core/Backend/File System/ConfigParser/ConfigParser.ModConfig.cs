@@ -17,7 +17,7 @@ namespace GangWarSandbox.Core
     {
         public static void LoadConfiguration()
         {
-            string[] validKeys = { "MenuKeybind", "SquadUpdateFreq", "VehicleUpdateFreq", "MaxCorpses", "MaxSquadlessVehicles", "DebugMode" };
+            string[] validKeys = { "MenuKeybind", "SquadUpdateFreq", "VehicleUpdateFreq", "MaxCorpses", "MaxSquadlessVehicles", "DebugMode", "AIAttackRadius" };
             Logger.Parser("Loading mod config file...");
             try
             {
@@ -65,6 +65,9 @@ namespace GangWarSandbox.Core
                             break;
                         case "DebugMode":
                             success = bool.TryParse(value, out GWSettings.DEBUG);
+                            break;
+                        case "AIAttackRadius":
+                            success = float.TryParse(value, out GWSettings.AI_ATTACK_RADIUS);
                             break;
                         default:
                             success = false;

@@ -110,12 +110,12 @@ namespace GangWarSandbox
 
             if (Factions.Count == 0)
             {
-                NotificationHandler.Send("~r~Warning: ~w~GangWarSandbox requires at least one faction in order to load. Please create one, or use one of the default ones provided.");
+                NotificationHandler.Send("~r~Warning: ~w~GangWarSandbox requires at least one faction in order to load. Please create one, or use one of the default ones provided (redownload the mod if necessary).");
                 return;
             }
             else if (Factions.Count == 1)
             {
-                NotificationHandler.Send("~r~Warning: ~w~GangWarSandbox works best with more than one faction. While you can play, it's suggested to add more.");
+                NotificationHandler.Send("~r~Warning: ~w~GangWarSandbox works best with more than one faction. While you can play with all teams being the same, it's more fun to add more.");
             }
             else
             {
@@ -153,6 +153,7 @@ namespace GangWarSandbox
 
             if (IsBattleRunning)
             {
+                // TODO: Improve player death handling
                 if (PlayerTeam != -1 && PlayerTeam != -2)
                 {
                     if (Player.IsDead)

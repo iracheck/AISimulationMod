@@ -22,48 +22,59 @@ namespace GangWarSandbox.Peds
 {
     public partial class Squad
     {
-        static Random rand = new Random();
-        static PedAI pedAI = new PedAI();
+        static Random Rand = new Random();
+        static PedAI PedAI = new PedAI();
 
         static GangWarSandbox ModData = GangWarSandbox.Instance;
         private Gamemode CurrentGamemode => ModData.CurrentGamemode;
 
         // Constants
-        public const float SQUAD_ATTACK_RANGE = 60f;
+        static float SQUAD_ATTACK_RANGE = GWSettings.AI_ATTACK_RADIUS;
 
         // Squad Logic begins here
 
+        // Lifecycle Control
         public bool JustSpawned = true;
+        public double LastUpdateTime = 0; // uses GameTime, the last time (in milliseconds since the game has been opened) in which the squad was updated
+        public int CyclesAlive = 0; // simply tracks for how many update cycles this squad has been active in the game
 
+        // Members List
         public Ped SquadLeader;
         public List<Ped> Members = new List<Ped>();
 
+        // Squad Metadata
         public Team Owner;
-
         public int squadValue; // lower value squads may be assigned to less important tasks
 
+        //
+        // AI & Assignments
+        //
 
         public List<Vector3> Waypoints = new List<Vector3>();
         public Dictionary<Ped, PedAssignment> PedAssignments = new Dictionary<Ped, PedAssignment>();
         Dictionary<Ped, (Ped enemy, int timestamp)> PedTargetCache;
 
-        // Squad Stuck Timer-- if the squad leader is stuck for too long, it will try to move again
-        private int SquadLeaderStuckTicks = 0;
-
-        public SquadRole Role;
-        public SquadType Type;
-        public SquadPersonality Personality;
-
         // Abstract Orders
         // these are orders that come from the "Strategy AI" of each team
         public CapturePoint TargetPoint; // the location that the squad's role will be applied to-- variable
 
+        // Squad Stuck Timer-- if the squad leader is stuck for too long, it will try to move again
+        private int SquadLeaderStuckTicks = 0;
+
+        // AI 
+        public SquadRole Role;
+        public SquadType Type;
+        public SquadPersonality Personality;
+
+
         public Vehicle SquadVehicle = null;
-        public bool IsWeaponizedVehicle;
+        public bool IsWeaponizedVehicle; // this is set at spawn
 
         // Runs every 200ms (default) and updates all AI, squad states, etc.
         public bool Update()
         {
+            CyclesAlive++;
+
             if (IsEmpty())
             {
                 Destroy();

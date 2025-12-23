@@ -111,7 +111,7 @@ namespace GangWarSandbox.Peds
 
             if (CurrentGamemode.SpawnMethod == Gamemode.GamemodeSpawnMethod.Spawnpoint && Owner.SpawnPoints.Count > 0)
             {
-                spawnpoint = Owner.SpawnPoints[rand.Next(Owner.SpawnPoints.Count)];
+                spawnpoint = Owner.SpawnPoints[Rand.Next(Owner.SpawnPoints.Count)];
 
                 if (spawnpoint == null || spawnpoint == Vector3.Zero) return false;
                 SpawnPos = FindRandomPositionAroundSpawnpoint(spawnpoint);
@@ -172,7 +172,7 @@ namespace GangWarSandbox.Peds
                     defend += StrategyAIHelpers.CalculateNeedToDefendPoint(Owner);
                     max += assault + defend;
 
-                    int randNum = rand.Next(0, max);
+                    int randNum = Rand.Next(0, max);
 
                     if (randNum <= assault) // Assault
                     {
@@ -194,7 +194,7 @@ namespace GangWarSandbox.Peds
         {
             if (Personality == 0)
             {
-                int randNum = rand.Next(0, 101);
+                int randNum = Rand.Next(0, 101);
 
                 if (randNum <= 50) // 50% chance to be aggressive
                     Personality = SquadPersonality.Aggressive;

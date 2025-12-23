@@ -203,26 +203,26 @@ namespace GangWarSandbox.Peds
             {
                 attempts++;
 
-                float distance = (float)(minRadius + rand.NextDouble() * (radius - minRadius));
+                float distance = (float)(minRadius + Rand.NextDouble() * (radius - minRadius));
                 float angle;
 
                 // Forward bias for vehicle mode
                 if (playerInVehicle)
                 {
-                    if (rand.NextDouble() < 0.8)
+                    if (Rand.NextDouble() < 0.8)
                     {
                         float cone = 25f * (float)Math.PI / 180f;
                         float forwardAngle = (float)Math.Atan2(forward.Y, forward.X);
-                        angle = forwardAngle + (float)(rand.NextDouble() * cone - cone / 2f);
+                        angle = forwardAngle + (float)(Rand.NextDouble() * cone - cone / 2f);
                     }
                     else
                     {
-                        angle = (float)(rand.NextDouble() * Math.PI * 2);
+                        angle = (float)(Rand.NextDouble() * Math.PI * 2);
                     }
                 }
                 else
                 {
-                    angle = (float)(rand.NextDouble() * Math.PI * 2);
+                    angle = (float)(Rand.NextDouble() * Math.PI * 2);
                 }
 
                 Vector3 offset = new Vector3(
@@ -317,8 +317,8 @@ namespace GangWarSandbox.Peds
                 newSpawnPoint = spawnpoint;
                 attempts++;
 
-                Vector3 randXOffset = new Vector3(rand.Next(-radius, radius), 0, 0);
-                Vector3 randYOffset = new Vector3(0, rand.Next(-radius, radius), 0);
+                Vector3 randXOffset = new Vector3(Rand.Next(-radius, radius), 0, 0);
+                Vector3 randYOffset = new Vector3(0, Rand.Next(-radius, radius), 0);
 
                 newSpawnPoint += randXOffset + randYOffset;
 
@@ -399,7 +399,7 @@ namespace GangWarSandbox.Peds
 
             bool shouldSpawnTier4 = (team.Tier4Ped == null || !team.Tier4Ped.Exists() || team.Tier4Ped.IsDead) && !playerHasNoTeam;
 
-            int rnum = rand.Next(0, 100);
+            int rnum = Rand.Next(0, 100);
 
             rnum = (int)(rnum * team.TierUpgradeMultiplier);
 
@@ -408,7 +408,7 @@ namespace GangWarSandbox.Peds
             else if (rnum >= 60) tier = 2;
             else tier = 1;
 
-            var model = new Model(team.Models[rand.Next(team.Models.Length)]);
+            var model = new Model(team.Models[Rand.Next(team.Models.Length)]);
             if (tier == 4 && !string.IsNullOrEmpty(team.Faction.Tier4Model)) model = new Model(team.Faction.Tier4Model);
 
             if (!model.IsValid || !model.IsInCdImage) return null;

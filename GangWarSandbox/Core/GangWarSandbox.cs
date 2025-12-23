@@ -193,8 +193,8 @@ namespace GangWarSandbox
 
                 foreach (var squad in allSquads)
                 {
-                    // Ped AI
-                    if ((squad.SquadVehicle != null && GameTime % GWSettings.VEHICLE_AI_UPDATE_FREQUENCY == 0) || (squad.SquadVehicle == null && GameTime % GWSettings.AI_UPDATE_FREQUENCY == 0) || squad.JustSpawned)
+                    // Ped AI 
+                    if ((squad.SquadVehicle != null && squad.LastUpdateTime + GWSettings.VEHICLE_AI_UPDATE_FREQUENCY < GameTime) || (squad.LastUpdateTime + GWSettings.AI_UPDATE_FREQUENCY < GameTime) || squad.JustSpawned)
                     {
                         squad.Update();
                         CurrentGamemode.OnSquadUpdate(squad);

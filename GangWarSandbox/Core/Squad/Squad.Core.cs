@@ -74,6 +74,7 @@ namespace GangWarSandbox.Peds
         public bool Update()
         {
             CyclesAlive++;
+            LastUpdateTime = Game.GameTime;
 
             if (IsEmpty())
             {

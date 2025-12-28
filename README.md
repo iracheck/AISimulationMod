@@ -1,7 +1,7 @@
 # Dynamic AI Simulation "GangWarSandbox"
 
 > Started as a latent research interest in optimization & AI, GangWarSandbox is now a fully-fledged combat utility for Grand Theft Auto V.
-> Development is on hold until December 2026.
+> Light development resumed as of December 2026, now open-source. 
 
 Create your battlefield anywhere on the map and watch the AI fight for control of the map, then join in yourself for extra chaos.. <br>
 

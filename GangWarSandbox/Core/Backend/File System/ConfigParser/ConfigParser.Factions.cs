@@ -23,7 +23,7 @@ namespace GangWarSandbox.Core
 
             try
             {
-                string path = "scripts/GangWarSandbox/Factions";
+                string path = ModFiles.FACTIONS_PATH;
 
                 string[] files = Directory.GetFiles(path, "*.ini");
 

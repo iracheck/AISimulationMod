@@ -16,13 +16,17 @@ namespace GangWarSandbox.Gamemodes
 {
     public abstract class Gamemode
     {
-        // Last updated: 6/5/2025
+        // Last updated: 12/28/2025
 
+        // Shared References
+        static Random rand = new Random();
         protected static GangWarSandbox Mod { get; set; }
 
+        // Enumerators
         public enum GamemodeBool { PlayerChoice = -1, False = 0, True = 1 }
         public enum GamemodeSpawnMethod { Spawnpoint, Random }
 
+        // Mandatory Information
         public string Name { get; private set; } = "no_name";
         public string Description { get; private set; } = "no_desc";
         public int MaxTeams { get; private set; } = GangWarSandbox.NUM_TEAMS;
@@ -83,9 +87,9 @@ namespace GangWarSandbox.Gamemodes
         // For anyone looking to add new gamemodes-- these are all the methods avaliable to be implemented in adding your own logic.
 
         /// <summary>
-        /// This allows you to construct a LemonUI menu for the gamemode, which appears as the second option in the list below the "Gamemode." It will appear as "Gamemode Options." See LemonUI documentation for more help.
+        /// This allows you to construct one or more LemonUI menu for the gamemode, which appears after the first option in the list (below the "Gamemode.") It will appear as "Gamemode Options." See LemonUI documentation for more help.
         /// </summary>
-        public virtual NativeMenu ConstructGamemodeMenu()
+        public virtual List<NativeMenu> ConstructGamemodeMenus()
         {
             return null;
         }
@@ -207,7 +211,6 @@ namespace GangWarSandbox.Gamemodes
         /// <param name="squad">The squad that was wiped out</param>
         public virtual Vector3 GetTarget(Squad s)
         {
-            Random rand = new Random();
             List<CapturePoint> capturePoints = Mod.CapturePoints;
             Vector3 target = Vector3.Zero;
 

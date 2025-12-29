@@ -24,7 +24,7 @@ namespace GangWarSandbox.Core
             Logger.Parser("Parsing VehicleSets from INI files...");
             try
             {
-                string path = "scripts/GangWarSandbox/VehicleSets";
+                string path = ModFiles.VEHICLESET_PATH;
                 string[] files = Directory.GetFiles(path, "*.ini");
 
                 foreach (var file in files)

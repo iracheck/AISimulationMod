@@ -234,7 +234,7 @@ namespace GangWarSandbox.Peds
                 }
                 else return false;
             }
-            else if (SquadLeader.IsInVehicle() && ped.CurrentVehicle != SquadLeader.CurrentVehicle)
+            else if (SquadLeader.IsInVehicle() && (!ped.IsInVehicle() || ped.CurrentVehicle != SquadLeader.CurrentVehicle))
             {
                 PedAI.EnterVehicle(ped, SquadLeader.CurrentVehicle);
                 PedAssignments[ped] = PedAssignment.GetIntoVehicle; // set the ped to follow the squad leader

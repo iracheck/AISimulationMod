@@ -96,12 +96,17 @@ namespace GangWarSandbox
 
             MainMenu.ElementAt(0).Enabled = !Mod.IsBattleRunning;
 
-            var gmMenu = gm.ConstructGamemodeMenu();
+            List<NativeMenu> gmMenus = gm.ConstructGamemodeMenus();
 
-            if (gmMenu != null)
+            if (gmMenus.Count > 0)
             {
-                var menu = MainMenu.AddSubMenu(gmMenu);
-                menu.Enabled = !Mod.IsBattleRunning;
+                foreach (var menu in gmMenus)
+                {
+                    if (menu == null) continue;
+
+                    var thisMenu = MainMenu.AddSubMenu(menu);
+                    thisMenu.Enabled = !Mod.IsBattleRunning;
+                }
             }
 
             if (gm.MaxTeams > 1)

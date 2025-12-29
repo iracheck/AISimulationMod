@@ -96,7 +96,7 @@ namespace GangWarSandbox.Gamemodes
             Mod.StopBattle();
         }
 
-        public override NativeMenu ConstructGamemodeMenu()
+        public override List<NativeMenu> ConstructGamemodeMenus()
         {
             Mod = GangWarSandbox.Instance;
 
@@ -164,7 +164,8 @@ namespace GangWarSandbox.Gamemodes
             gamemodeMenu.Add(level2Enemy);
             gamemodeMenu.Add(level3Enemy);
             //gamemodeMenu.Add(missions);
-            return gamemodeMenu;
+
+            return new List<NativeMenu>(){gamemodeMenu};
         } 
 
         public override void OnTickGameRunning()

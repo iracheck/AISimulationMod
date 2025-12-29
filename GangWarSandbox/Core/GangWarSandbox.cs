@@ -100,6 +100,7 @@ namespace GangWarSandbox
         public GangWarSandbox()
         {
             Instance = this;
+            Logger.Log("GangWarSandbox loaded using build " + GWSMeta.Version + ", built on date: " + GWSMeta.BuildDate.ToString() + ".\n", "META");
             
             // Ensure valid directories exist on startup
             ModFiles.EnsureDirectoriesExist();

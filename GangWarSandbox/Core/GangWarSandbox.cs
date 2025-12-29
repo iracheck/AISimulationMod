@@ -96,18 +96,32 @@ namespace GangWarSandbox
         bool PlayerDied = false;
         int TimeOfDeath;
 
-
         public GangWarSandbox()
         {
             Instance = this;
+
             Logger.Log("GangWarSandbox loaded using build " + GWSMeta.Version + ", built on date: " + GWSMeta.BuildDate.ToString() + ".\n", "META");
-            
+
+            // Ensure that LemonUI is loaded:
+            try
+            {
+                NativeMenu menu = new NativeMenu("test");
+            }
+            catch (Exception ex)
+            {
+                Logger.Log(ex.ToString());
+                Logger.Log("GangWarSandbox shutting down due to LemonUI failing to load.");
+                NotificationHandler.Send("~r~Warning: ~w~LemonUI failed to load. Please ensure you are using LemonUI 2.2 or newer, and that it is installed in your GTA5 scripts folder. Without LemonUI, you will not be able to play the mod.");
+                return;
+            }
+
             // Ensure valid directories exist on startup
             ModFiles.EnsureDirectoriesExist();
 
             // Try to load the configuration files
             Factions = ConfigParser.LoadFactions();
             ConfigParser.LoadConfiguration();
+
 
             if (Factions.Count == 0)
             {

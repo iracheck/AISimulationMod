@@ -38,7 +38,7 @@ namespace GangWarSandbox.Gamemodes
         List<int[]> ThreatLevelSettings = new List<int[]>
         {
             // max squads(total) (0) - vehicles (1) - weaponized vehicles (2) - helicopters (3) - max faction tier[1-3] (4) - threat weight (5)
-            new int[] { 2, 2, 0, 0, 1, 0 }, // 1
+            new int[] { 2, 1, 0, 0, 1, 0 }, // 1
             new int[] { 3, 2, 0, 0, 1, 120 }, // 2
             new int[] { 4, 2, 0, 0, 1, 600 }, // 3
             new int[] { 5, 3, 0, 0, 1, 1200 }, // 4

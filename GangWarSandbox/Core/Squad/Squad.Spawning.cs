@@ -185,6 +185,12 @@ namespace GangWarSandbox.Peds
                 vehicle.AttachedBlip.Sprite = BlipSprite.HelicopterAnimated;
         }
 
+        private bool IsValidZ(Vector3 spawn, Vector3 playerPos, bool vehicle)
+        {
+            float tolerance = vehicle ? 20f : 40f;
+            return spawn.Z >= playerPos.Z - tolerance && spawn.Z <= playerPos.Z + tolerance;
+        }
+
         public Vector3 FindRandomPositionAroundPlayer(int radius = 200, int minRadius = 100)
         {
             Ped player = Game.Player.Character;
@@ -192,7 +198,7 @@ namespace GangWarSandbox.Peds
             Vector3 newSpawnPoint = playerPos;
 
             int attempts = 0;
-            int MAX_ATTEMPTS = 20;
+            int MAX_ATTEMPTS = 25;
 
             bool playerInVehicle = player.IsInVehicle();
 
@@ -210,9 +216,9 @@ namespace GangWarSandbox.Peds
                 // Forward bias for vehicle mode
                 if (playerInVehicle)
                 {
-                    if (Rand.NextDouble() < 0.8)
+                    if (Rand.NextDouble() < 0.85)
                     {
-                        float cone = 25f * (float)Math.PI / 180f;
+                        float cone = 20f * (float)Math.PI / 180f;
                         float forwardAngle = (float)Math.Atan2(forward.Y, forward.X);
                         angle = forwardAngle + (float)(Rand.NextDouble() * cone - cone / 2f);
                     }
@@ -259,8 +265,8 @@ namespace GangWarSandbox.Peds
                 }
 
                 // Avoid crowded areas
-                bool noEntitiesNearby = World.GetNearbyEntities(newSpawnPoint, 5f).Length == 0;
-                bool noPedsNearby = World.GetNearbyPeds(newSpawnPoint, 5f).Length == 0;
+                bool noEntitiesNearby = World.GetNearbyEntities(newSpawnPoint, 3f).Length == 0;
+                bool noPedsNearby = World.GetNearbyPeds(newSpawnPoint, 3f).Length == 0;
                 if (!(noEntitiesNearby && noPedsNearby))
                 {
                     if (attempts >= MAX_ATTEMPTS) return Vector3.Zero;
@@ -270,35 +276,30 @@ namespace GangWarSandbox.Peds
                 // Z-level check
                 if (newSpawnPoint.Z < player.Position.Z - 5f || newSpawnPoint.Z > player.Position.Z + 5f)
                 {
-                    if (attempts >= MAX_ATTEMPTS - 3)
+                    if (attempts >= MAX_ATTEMPTS - 5)
+                    {
+                        if (!IsValidZ(newSpawnPoint, playerPos, IsVehicleSquad()))
+                            continue;
+                    }
+                    else if (newSpawnPoint.DistanceTo2D(playerPos) < (IsVehicleSquad() ? 120f : 70f))
                     {
                         if (attempts >= MAX_ATTEMPTS) return Vector3.Zero;
-                        if (newSpawnPoint.Z < player.Position.Z - 50f || newSpawnPoint.Z > player.Position.Z + 50f)
-                        {
-                            continue;
-                        }
+                        continue;
                     }
-                    else continue;
+
+                    // Check if under the map
+                    Vector3 rayStart = newSpawnPoint + new Vector3(0, 0, 100f);
+                    Vector3 rayEnd = newSpawnPoint;
+                    RaycastResult downcast = World.Raycast(rayStart, rayEnd, IntersectFlags.Map);
+                    RaycastResult upcast = World.Raycast(newSpawnPoint, newSpawnPoint + new Vector3(0, 0, 15f), IntersectFlags.Map);
+
+                    if (!upcast.DidHit && downcast.DidHit && downcast.HitPosition.DistanceTo(newSpawnPoint) <= 15f)
+                    {
+                        newSpawnPoint = downcast.HitPosition;
+                    }
+
+                    return newSpawnPoint;
                 }
-
-                if (newSpawnPoint.DistanceTo2D(playerPos) < (IsVehicleSquad() ? 120f : 70f))
-                {
-                    if (attempts >= MAX_ATTEMPTS) return Vector3.Zero;
-                    continue;
-                }
-
-                // Check if under the map
-                Vector3 rayStart = newSpawnPoint + new Vector3(0, 0, 100f);
-                Vector3 rayEnd = newSpawnPoint;
-                RaycastResult downcast = World.Raycast(rayStart, rayEnd, IntersectFlags.Map);
-                RaycastResult upcast = World.Raycast(newSpawnPoint, newSpawnPoint + new Vector3(0, 0, 15f), IntersectFlags.Map);
-
-                if (!upcast.DidHit && downcast.DidHit && downcast.HitPosition.DistanceTo(newSpawnPoint) <= 15f)
-                {
-                    newSpawnPoint = downcast.HitPosition;
-                }
-
-                return newSpawnPoint;
             }
         }
 

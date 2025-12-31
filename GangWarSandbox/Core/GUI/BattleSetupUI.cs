@@ -98,7 +98,7 @@ namespace GangWarSandbox
 
             List<NativeMenu> gmMenus = gm.ConstructGamemodeMenus();
 
-            if (gmMenus.Count > 0)
+            if (gmMenus != null && gmMenus.Count > 0)
             {
                 foreach (var menu in gmMenus)
                 {

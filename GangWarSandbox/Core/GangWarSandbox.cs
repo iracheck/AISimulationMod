@@ -555,41 +555,48 @@ namespace GangWarSandbox
 
         public void ResetPlayerRelations()
         {
+            if (PlayerTeam < -1 || PlayerTeam >= Teams.Count)
+            {
+                Debug.WriteLine($"Warning: PlayerTeam index {PlayerTeam} out of range. Defaulting to no team.");
+                PlayerTeam = -1;
+            }
+
+            // Reset all teams
             foreach (var team in Teams)
             {
                 team.IsPlayerTeam = false;
-                Function.Call(Hash.SET_RELATIONSHIP_BETWEEN_GROUPS, (int)Relationship.Hate, Game.Player.Character.RelationshipGroup, Teams[PlayerTeam].Group);
-                Function.Call(Hash.SET_RELATIONSHIP_BETWEEN_GROUPS, (int)Relationship.Hate, Teams[PlayerTeam].Group, Game.Player.Character.RelationshipGroup);
+
+                if (PlayerTeam >= 0) // only set hate if PlayerTeam is valid
+                {
+                    Function.Call(Hash.SET_RELATIONSHIP_BETWEEN_GROUPS, (int)Relationship.Hate, Game.Player.Character.RelationshipGroup, Teams[PlayerTeam].Group);
+                    Function.Call(Hash.SET_RELATIONSHIP_BETWEEN_GROUPS, (int)Relationship.Hate, Teams[PlayerTeam].Group, Game.Player.Character.RelationshipGroup);
+                }
             }
 
-            // Assign player to team
-            if (PlayerTeam < 0)
+            // Assign player to team or default
+            if (PlayerTeam == -1)
             {
                 Game.Player.Character.RelationshipGroup = "PLAYER";
-
-                if (PlayerTeam == -1)
+                foreach (var team in Teams)
                 {
-                    foreach (var team in Teams)
-                    {
-                        Function.Call(Hash.SET_RELATIONSHIP_BETWEEN_GROUPS, (int)Relationship.Respect, Game.Player.Character.RelationshipGroup, team.Group);
-                        Function.Call(Hash.SET_RELATIONSHIP_BETWEEN_GROUPS, (int)Relationship.Respect, team.Group, Game.Player.Character.RelationshipGroup);
-                    }
+                    Function.Call(Hash.SET_RELATIONSHIP_BETWEEN_GROUPS, (int)Relationship.Respect, Game.Player.Character.RelationshipGroup, team.Group);
+                    Function.Call(Hash.SET_RELATIONSHIP_BETWEEN_GROUPS, (int)Relationship.Respect, team.Group, Game.Player.Character.RelationshipGroup);
                 }
             }
             else
             {
                 Function.Call(Hash.SET_RELATIONSHIP_BETWEEN_GROUPS, (int)Relationship.Companion, Game.Player.Character.RelationshipGroup, Teams[PlayerTeam].Group);
                 Function.Call(Hash.SET_RELATIONSHIP_BETWEEN_GROUPS, (int)Relationship.Companion, Teams[PlayerTeam].Group, Game.Player.Character.RelationshipGroup);
-                Teams[PlayerTeam].Tier4Ped = Player; // Assign player to be their team's "strong npc"
+                Teams[PlayerTeam].Tier4Ped = Player;
                 Teams[PlayerTeam].IsPlayerTeam = true;
 
-                // move the player to the first spawn point of their team
                 if (Teams[PlayerTeam].SpawnPoints.Count > 0)
                 {
                     Player.Position = Teams[PlayerTeam].SpawnPoints[0];
                 }
             }
         }
+
 
 
         /// <summary>

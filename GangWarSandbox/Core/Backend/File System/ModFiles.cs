@@ -13,8 +13,9 @@ namespace GangWarSandbox.Core
         public const string CONFIG_PATH = "scripts/GangWarSandbox/Configuration.ini";
         public const string VEHICLESET_PATH = MOD_PATH + "/VehicleSets";
         public const string FACTIONS_PATH = MOD_PATH + "/Factions";
+        public const string SAVEDATA_PATH = MOD_PATH + "/SaveData";
 
-        public const string SCORE_FILE_PATH = MOD_PATH + "/highscores.txt";
+        public const string SURVIVAL_SAVE_PATH = SAVEDATA_PATH + "/survival.txt";
         public const string LOG_FILE_PATH = "scripts/GangWarSandbox/GWS.log"; // Path to the log file
 
         public static void EnsureDirectoriesExist()
@@ -22,9 +23,10 @@ namespace GangWarSandbox.Core
             Directory.CreateDirectory(MOD_PATH);
             Directory.CreateDirectory(VEHICLESET_PATH);
             Directory.CreateDirectory(FACTIONS_PATH);
+            Directory.CreateDirectory(SAVEDATA_PATH);
 
             File.Create(LOG_FILE_PATH).Close(); // Ensure the log file exists
-            File.Create(SCORE_FILE_PATH).Close(); // Create the score path
+            File.Create(SURVIVAL_SAVE_PATH).Close(); // Create the survival path
 
             // Ensure the log file is empty at mod start
             if (File.Exists(LOG_FILE_PATH))

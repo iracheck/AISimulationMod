@@ -222,11 +222,11 @@ namespace GangWarSandbox.Peds
             float dist = ped.Position.DistanceTo(Game.Player.Character.Position);
 
             // Distance conditions, only happens when player is on a team
-            if (dist > 125f) return 0;
+            if (dist > 90f) return 0;
             else if (dist < 50f) return maxAlpha;
             else
             {
-                maxAlpha = (int)(maxAlpha * (1 - (dist / 200)));
+                maxAlpha = (int)(maxAlpha * (1 - (dist / 200f)));
             }
 
             return maxAlpha;
@@ -235,9 +235,17 @@ namespace GangWarSandbox.Peds
 
         private int GetDesiredVehicleBlipVisiblity(Vehicle vehicle, Team team)
         {
+            float distFromPlayer = vehicle.Position.DistanceTo(Game.Player.Character.Position);
             if (Game.Player.Character.CurrentVehicle == vehicle) return 0; // hide players current vehicle
-            if (vehicle.Passengers.Count() != 0) return 255;
-            else return 0; // hide empty vehicles
+
+            if (CurrentGamemode.FogOfWar == false) return 255;
+            
+            if (vehicle.PassengerCount != 0 && !(distFromPlayer > 160f))
+            {
+                if (vehicle.PassengerCount != 0 && distFromPlayer < 125f) return 255;
+                return (int)(255 * (1 - (distFromPlayer / 160f)));
+            }
+            else return 0; // hide empty or distant vehicles
         }
 
         public bool IsVehicleSquad()

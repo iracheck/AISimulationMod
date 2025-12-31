@@ -534,7 +534,7 @@ namespace GangWarSandbox.Peds
             ped.DropsEquippedWeaponOnDeath = false;
 
             Members.Add(ped);
-            PedAssignments[ped] = PedAssignment.None;
+            PedAssignments[ped] = PedAssignment.Idle;
 
             // Combat Flags
             Function.Call(Hash.SET_PED_COMBAT_ATTRIBUTES, ped, 0, true);  // Always fight
@@ -585,7 +585,7 @@ namespace GangWarSandbox.Peds
             ped.VehicleDrivingFlags = VehicleDrivingFlags.UseShortCutLinks | VehicleDrivingFlags.AllowGoingWrongWay;
 
             PedTargetCache[ped] = (null, 0);
-            PedAssignments[ped] = PedAssignment.None;
+            PedAssignments[ped] = PedAssignment.Idle;
 
             squadValue += pedValue;
             return ped;

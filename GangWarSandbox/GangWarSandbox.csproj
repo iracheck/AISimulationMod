@@ -69,21 +69,29 @@
     <Compile Include="Core\Backend\Utilities\Helpers.cs" />
     <Compile Include="Core\Backend\Utilities\NotificationHandler.cs" />
     <Compile Include="Core\GUI\BattleSetupUI.cs" />
-    <Compile Include="Core\Squad\Squad.Initialization.cs" />
-    <Compile Include="Core\Squad\Squad.Helpers.cs" />
+    <Compile Include="Core\Squad\AI\Infantry\Autonomous\MoveTask.cs" />
+    <Compile Include="Core\Squad\AI\SharedTasks\IdleTask.cs" />
+    <Compile Include="Core\Squad\AI\PedTask.cs" />
+    <Compile Include="Core\Squad\Object\Squad.Initialization.cs" />
+    <Compile Include="Core\Squad\Object\Squad.Helpers.cs" />
     <Compile Include="Core\World\MapElements\CapturePoint.cs" />
     <Compile Include="Core\Backend\Gameplay\Faction.cs" />
     <Compile Include="Core\GangWarSandbox.cs" />
     <Compile Include="Core\Peds\PedAI.cs" />
-    <Compile Include="Core\Squad\Squad.Behavior.cs" />
-    <Compile Include="Core\Squad\Squad.Spawning.cs" />
-    <Compile Include="Core\Squad\Squad.Core.cs" />
+    <Compile Include="Core\Squad\Object\Squad.Behavior.cs" />
+    <Compile Include="Core\Squad\Object\Squad.Spawning.cs" />
+    <Compile Include="Core\Squad\Object\Squad.Core.cs" />
     <Compile Include="Core\Backend\Gameplay\VehicleSet.cs" />
     <Compile Include="Core\StrategyAI\StrategyAIHelpers.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Core\Backend\Gameplay\Team.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Core\Squad\AI\Helicopter\" />
+    <Folder Include="Core\Squad\AI\Infantry\ScriptedStates\" />
+    <Folder Include="Core\Squad\AI\Vehicle\" />
+    <Folder Include="Core\Squad\AI\WeaponizedVehicle\" />
+  </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>

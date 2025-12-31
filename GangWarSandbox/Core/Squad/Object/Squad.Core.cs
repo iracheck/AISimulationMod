@@ -37,7 +37,7 @@ namespace GangWarSandbox.Peds
         // Lifecycle Control
         public bool JustSpawned = true;
         public double LastUpdateTime = 0; // uses GameTime, the last time (in milliseconds since the game has been opened) in which the squad was updated
-        public int CyclesAlive = 0; // simply tracks for how many update cycles this squad has been active in the game
+        public int CyclesAlive = 0; // simply tracks for how many update cycles this squad has been active in the game -->
 
         // Members List
         public Ped SquadLeader;
@@ -109,7 +109,7 @@ namespace GangWarSandbox.Peds
                     {
                         if (PedAssignments[ped] == PedAssignment.RunToPosition || PedAssignments[ped] == PedAssignment.DriveToPosition)
                         {
-                            PedAssignments[ped] = PedAssignment.None;
+                            PedAssignments[ped] = PedAssignment.Idle;
                         }
                     }
                 }

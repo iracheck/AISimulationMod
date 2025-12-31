@@ -23,7 +23,7 @@ namespace GangWarSandbox.Peds
         // the squad will behave in a similar way-- inheriting their leader's assignment
         public enum PedAssignment
         {
-            None,
+            Idle,
             AttackNearby,
             RunToPosition,
             DefendArea,

@@ -29,14 +29,20 @@ namespace GangWarSandbox.Peds
 
             DefendCapturePoint, // defend a capture point from enemies trying to take it
             AssaultCapturePoint, // capture a capture point by attacking it and any squads nearby
-            ReinforceAllies,
+            ReinforceAllies, // allies are in danger! reinforce them
             SeekAndDestroy, // assault a random enemy spawn point
-            ChargeCapturePoint,
+            ChargeCapturePoint, // todo
 
+            // regular vehicles
             VehicleSupport,
 
-            //AirSupport = 31,
-            //AirDrop = 32,
+            // air vehicles
+            AirSupport, //todo
+            AirDrop, //todo
+
+            // weaponized vehicles
+            WeaponizedVehicleAnchor, //todo
+            WeaponizedVehicleAssault, //todo
 
 
         }
@@ -48,7 +54,7 @@ namespace GangWarSandbox.Peds
             Aggressive, // the squad will act more aggressively, and move more quickly
         }
 
-        // Squad type is only used for spawning the squad.
+        // Squad type is only used for spawning the squad. Essentially, it determines the loadout for the squad, and then is discarded (never used again)
         public enum SquadType
         {
             Infantry = 0,

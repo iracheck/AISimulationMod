@@ -23,7 +23,7 @@ namespace GangWarSandbox.Peds
     public partial class Squad
     {
         static Random Rand = new Random();
-        static PedAI PedAI = new PedAI();
+        static AISubTasks PedAI = new AISubTasks();
 
         static GangWarSandbox ModData = GangWarSandbox.Instance;
         private Gamemode CurrentGamemode => ModData.CurrentGamemode;
@@ -46,14 +46,6 @@ namespace GangWarSandbox.Peds
         // Squad Metadata
         public Team Owner;
         public int squadValue; // lower value squads may be assigned to less important tasks
-
-        //
-        // AI & Assignments
-        //
-
-        public List<Vector3> Waypoints = new List<Vector3>();
-        public Dictionary<Ped, PedAssignment> PedAssignments = new Dictionary<Ped, PedAssignment>();
-        Dictionary<Ped, (Ped enemy, int timestamp)> PedTargetCache;
 
         // Abstract Orders
         // these are orders that come from the "Strategy AI" of each team

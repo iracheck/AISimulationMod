@@ -20,6 +20,8 @@ namespace GangWarSandbox.Peds
             this.Parent = parent;
             this.Character = character;
             this.IsLeader = parent.SquadLeader == Character;
+
+            Enter();
         }
 
         /// <summary>
@@ -43,9 +45,14 @@ namespace GangWarSandbox.Peds
         /// <returns>True if the state transitioned, False if the state remained the same</returns>
         public abstract bool TransitionState();
 
+        /// <summary>
+        /// Must use SetTask in order to properly "clear" the cache. Just do it. It's safer that way.
+        /// </summary>
+        /// <param name="task">The task the ped is using next tick</param>
         public void SetTask(PedTask task)
         {
-            
+            // Parent.PedAssignments[Character] = task;
+            Exit();
         }
     }
 }

@@ -232,7 +232,7 @@ namespace GangWarSandbox.Gamemodes
             Ped player = Game.Player.Character;
             float distanceToPlayer = ped.Position.DistanceTo(player.Position);
             var assignments = squad.PedAssignments;
-            bool hasLOS = PedAI.HasLineOfSight(ped, player);
+            bool hasLOS = AISubTasks.HasLineOfSight(ped, player);
 
 
             if (player.IsInVehicle())
@@ -259,12 +259,12 @@ namespace GangWarSandbox.Gamemodes
 
                 if ( squad.CanGetOutVehicle(ped) && (distanceToPlayer < 70f) || (hasLOS && (ped.HasBeenDamagedByAnyWeapon() || player.IsShooting)))
                 {
-                    PedAI.AttackEnemy(ped, player);
+                    AISubTasks.AttackEnemy(ped, player);
                     assignments[ped] = Squad.PedAssignment.AttackNearby;
                 }
                 else if (ped.IsInVehicle())
                 {
-                    PedAI.DriveBy(ped, player);
+                    AISubTasks.DriveBy(ped, player);
                     assignments[ped] = Squad.PedAssignment.GamemodeReserved1;
                 }
                 else if (assignments[ped] == Squad.PedAssignment.AttackNearby) return true;

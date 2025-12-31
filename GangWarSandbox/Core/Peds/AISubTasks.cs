@@ -17,7 +17,7 @@ using GangWarSandbox.Utilities;
 
 namespace GangWarSandbox.Peds
 {
-    public class PedAI
+    public class AISubTasks
     {
         // Helper classes
         static GangWarSandbox ModData = GangWarSandbox.Instance;
@@ -32,6 +32,11 @@ namespace GangWarSandbox.Peds
         public static void RunToFarAway(Ped ped, Vector3 coord)
         {
             Function.Call(Hash.TASK_FOLLOW_NAV_MESH_TO_COORD, ped, coord.X, coord.Y, coord.Z, 2f, -1, 5.0f, 8, 0.0f);
+        }
+
+        public static void FollowPedAtRandomOffset(Ped ped, Ped target, int maxOffset = 6)
+        {
+            ped.Task.FollowToOffsetFromEntity(target, GenerateRandomOffset(maxOffset), 2f);
         }
 
         public static void DefendArea(Ped ped, Vector3 point)
@@ -279,15 +284,15 @@ namespace GangWarSandbox.Peds
             return PedsNearby;
         }
 
-        public static Vector3 GenerateRandomOffset()
+        public static Vector3 GenerateRandomOffset(int offsetLimit = 6)
         {
             float offsetX = 0;
             float offsetY = 0;
 
             while (Math.Abs(offsetX) < 1 && Math.Abs(offsetY) < 1) // ensure the offset is not too small
             {
-                offsetX = rand.Next(-5, 6);
-                offsetY = rand.Next(-5, 6);
+                offsetX = rand.Next(-(offsetLimit - 1), offsetLimit);
+                offsetY = rand.Next(-(offsetLimit - 1), offsetLimit);
             }
 
             return new Vector3(offsetX, offsetY, 0);

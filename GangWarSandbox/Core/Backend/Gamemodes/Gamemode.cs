@@ -205,7 +205,7 @@ namespace GangWarSandbox.Gamemodes
         public virtual void OnPedKilled(Ped ped, Team teamOfPed) { }
 
         /// <summary>
-        /// Handles squad target finding. Waypoints are automatically generated based upon this 
+        /// Handles squad target finding. Waypoints are automatically generated based upon this data, as defined in Squad.cs
         /// </summary>
         /// <param name="squad">The squad that was wiped out</param>
         public virtual Vector3 GetTarget(Squad s)
@@ -250,14 +250,14 @@ namespace GangWarSandbox.Gamemodes
             else if (s.Role == SquadRole.SeekAndDestroy || s.Role == SquadRole.VehicleSupport)
             {
                 {
-                    target = PedAI.FindRandomEnemySpawnpoint(s.Owner);
+                    target = AISubTasks.FindRandomEnemySpawnpoint(s.Owner);
                 }
             }
 
             // Final failsafe: ensure a non-zero target is returned
             if (target == Vector3.Zero)
             {
-                target = PedAI.FindRandomEnemySpawnpoint(s.Owner);
+                target = AISubTasks.FindRandomEnemySpawnpoint(s.Owner);
 
                 // Still can't find one? Fallback solution
                 if (target == Vector3.Zero)

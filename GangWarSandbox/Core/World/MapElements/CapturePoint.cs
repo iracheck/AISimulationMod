@@ -91,7 +91,7 @@ namespace GangWarSandbox
         public void CapturePointHandler()
         {
             CaptureProgress = Math.Min(100f, Math.Max(0f, CaptureProgress));
-            PedsNearby = PedAI.GetNearbyPeds(Position, Radius); // update PedsNearby
+            PedsNearby = AISubTasks.GetNearbyPeds(Position, Radius); // update PedsNearby
             if (PedsNearby == null) return;
             Team nearbyTeam;
 

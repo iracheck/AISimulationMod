@@ -15,11 +15,22 @@ namespace GangWarSandbox.Peds
         {
         }
 
+        public override void Enter()
+        {
+            Ped.Task.ClearAllImmediately();
+        }
+
         public override bool TransitionState()
         {
+            if (Parent.CheckForCombat(Ped))
+            {
+                SetTask(new AttackNearbyTask(Parent, Ped));
+                return true;
+            }
+
             if (Parent.Waypoints.Count > 0)
             {
-                SetTask(new MoveTask(Parent, Character));
+                SetTask(new MoveTask(Parent, Ped));
                 return true;
             }
 

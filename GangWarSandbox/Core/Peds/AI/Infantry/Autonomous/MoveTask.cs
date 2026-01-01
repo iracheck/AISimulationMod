@@ -24,19 +24,19 @@ namespace GangWarSandbox.Peds
         {
             if (Waypoints.Count != 0 && IsLeader)
             {
-                AISubTasks.RunToFarAway(Character, Waypoints[0]);
+                AISubTasks.RunToFarAway(Ped, Waypoints[0]);
             }
             else
             {
-                AISubTasks.FollowPedAtRandomOffset(Character, Parent.SquadLeader);
+                AISubTasks.FollowPedAtRandomOffset(Ped, Parent.SquadLeader);
             }
         }
 
         public override bool TransitionState()
         {
-            if (Parent.CheckForCombat(Character))
+            if (Parent.CheckForCombat(Ped))
             {
-                SetTask(new AttackNearbyTask(Parent, Character));
+                SetTask(new AttackNearbyTask(Parent, Ped));
                 return true;
             }
 
@@ -45,7 +45,14 @@ namespace GangWarSandbox.Peds
                 // if there are no waypoints, there's nowhere to go!
                 if (Parent.Waypoints.Count == 0)
                 {
-                    SetTask(new IdleTask(Parent, Character));
+                    SetTask(new IdleTask(Parent, Ped));
+                    return true;
+                }
+
+                if (IsLeader && Parent.TargetPoint.Position.DistanceTo(Ped.Position) < 5f && 
+                    Parent.Role == Squad.SquadRole.AssaultCapturePoint && Parent.Waypoints.Count == 1)
+                {
+                    SetTask(new CaptureTask(Parent, Ped));
                     return true;
                 }
             }
@@ -57,10 +64,10 @@ namespace GangWarSandbox.Peds
         {
             if (IsLeader)
             {
-                if (Waypoints.Count != 0 && Character.Position.DistanceTo(Waypoints[0]) < 10f)
+                if (Waypoints.Count != 0 && Ped.Position.DistanceTo(Waypoints[0]) < 10f)
                 {
                     Waypoints.RemoveAt(0);
-                    AISubTasks.RunToFarAway(Character, Waypoints[0]);
+                    AISubTasks.RunToFarAway(Ped, Waypoints[0]);
                 }
             }
         }

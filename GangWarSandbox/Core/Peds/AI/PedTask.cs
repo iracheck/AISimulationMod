@@ -12,14 +12,14 @@ namespace GangWarSandbox.Peds
     public abstract class PedTask
     {
         readonly protected Squad Parent; // reference to the squad this state (ped) belongs to
-        readonly protected Ped Character;
+        readonly protected Ped Ped;
         readonly protected bool IsLeader;
 
         public PedTask(Squad parent, Ped character)
         {
             this.Parent = parent;
-            this.Character = character;
-            this.IsLeader = parent.SquadLeader == Character;
+            this.Ped = character;
+            this.IsLeader = parent.SquadLeader == Ped;
 
             Enter();
         }

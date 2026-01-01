@@ -96,12 +96,8 @@ namespace GangWarSandbox
         bool PlayerDied = false;
         int TimeOfDeath;
 
-        public GangWarSandbox()
+        void TrySeeLemonUI()
         {
-            Instance = this;
-
-            Logger.Log("GangWarSandbox loaded using build " + GWSMeta.Version + ", built on date: " + GWSMeta.BuildDate.ToString() + ".\n", "META");
-
             // Ensure that LemonUI is loaded:
             try
             {
@@ -114,6 +110,13 @@ namespace GangWarSandbox
                 NotificationHandler.Send("~r~Warning: ~w~LemonUI failed to load. Please ensure you are using LemonUI 2.2 or newer, and that it is installed in your GTA5 scripts folder. Without LemonUI, you will not be able to play the mod.");
                 return;
             }
+        }
+
+        public GangWarSandbox()
+        {
+            Instance = this;
+
+            Logger.Log("GangWarSandbox loaded using build " + GWSMeta.Version + ", built on date: " + GWSMeta.BuildDate.ToString() + ".\n", "META");
 
             // Ensure valid directories exist on startup
             ModFiles.EnsureDirectoriesExist();
@@ -156,6 +159,7 @@ namespace GangWarSandbox
 
         private void OnTick(object sender, EventArgs e)
         {
+            TrySeeLemonUI();
             Stopwatch sw = Stopwatch.StartNew();
 
             BattleSetupUI.MenuPool.Process();
@@ -168,6 +172,13 @@ namespace GangWarSandbox
 
             if (IsBattleRunning)
             {
+                // Essentially "fakes" that the player is wanted while battles are occuring. This allows the player to use weapons inside
+                // houses.
+                Game.Player.IgnoredByPolice = true;
+                Game.MaxWantedLevel = 1;
+                Game.Player.WantedLevel = 0;
+                Function.Call(Hash.SET_FAKE_WANTED_LEVEL, 0);
+
                 // TODO: Improve player death handling
                 if (PlayerTeam != -1 && PlayerTeam != -2)
                 {
@@ -270,8 +281,6 @@ namespace GangWarSandbox
         {
             if (IsBattleRunning || !CurrentGamemode.CanStartBattle()) return;
 
-            IsBattleRunning = true;
-
             ResetPlayerRelations();
 
             for (int i = 0; i < CapturePoints.Count; i++)
@@ -292,6 +301,7 @@ namespace GangWarSandbox
 
             Game.Player.WantedLevel = 0; // Reset wanted level
             Game.Player.DispatchsCops = false; // disable cop dispatches
+            IsBattleRunning = true;
         }
 
         public void StopBattle()

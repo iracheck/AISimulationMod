@@ -392,7 +392,7 @@ namespace GangWarSandbox.Gamemodes
 
             double threatWeight = (TimeElapsed / 1000) + (PlayerScore * 0.2);
 
-            if (Game.Player.Character.IsInVehicle() && CurrentThreatLevel < 3) CurrentThreatLevel = 3;
+            if (Game.Player.Character.IsInVehicle() && CurrentThreatLevel < 2) CurrentThreatLevel = 2;
 
             if (CurrentThreatLevel < ThreatLevelSettings.Count - 1 && threatWeight > ThreatLevelSettings[CurrentThreatLevel + 1][5])
             {

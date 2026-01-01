@@ -91,7 +91,7 @@ namespace GangWarSandbox.Gamemodes
             SetRelationships();
         }
 
-        public override void OnPlayerDeath()
+        public override void OnPlayerDeath(int gameTime)
         {
             Mod.StopBattle();
         }

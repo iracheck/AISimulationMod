@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using GangWarSandbox.Utilities;
 using static GangWarSandbox.Peds.Squad;
+using GTA.Native;
 
 namespace GangWarSandbox.Gamemodes
 {
@@ -150,7 +151,11 @@ namespace GangWarSandbox.Gamemodes
         /// <summary>
         /// Runs once when the battle begins. This specifically executes immediately after teams are initialized with factions, but before spawning begins.
         /// </summary>
-        public virtual void OnStart() { }
+        public virtual void OnStart()
+        {
+            Vector3 pt = GangWarSandbox.Instance.Teams[0].SpawnPoints[0];
+            Function.Call(Hash.SET_RESTART_COORD_OVERRIDE, pt.X, pt.Y, pt.Z, 0);
+        }
 
         /// <summary>
         /// Runs immediately after a squad is spawned.
@@ -195,7 +200,10 @@ namespace GangWarSandbox.Gamemodes
         /// <summary>
         /// Runs once when the battle ends. This method should clean up any UI modifications, if applicable.
         /// </summary>
-        public virtual void OnEnd() { }
+        public virtual void OnEnd()
+        {
+            Function.Call(Hash.CLEAR_RESTART_COORD_OVERRIDE);
+        }
 
         /// <summary>
         ///  Runs whenever a ped is killed, and immediately before that ped is cleaned up by the script.
@@ -329,7 +337,7 @@ namespace GangWarSandbox.Gamemodes
 
         /// <summary>
         /// Allows you to determine new conditions for when a vehicle squad should spawn. Unlike ShouldSpawnSquad(), this OVERWRITES EXISTING conditions, as existing conditions are incredibly circumstanstial.
-        /// Example: Infinite Battle/Skirmish conditions say "roughly" 20% of a team's population is allocated to regular vehicle squads.
+        /// Example: Infinite Battle/Skirmish conditions say "roughly" 15% of a team's population is allocated to regular vehicle squads.
         /// Return true to allow spawning, return false to prevent it. Returns true by default.
         /// </summary>
         public virtual bool ShouldSpawnVehicleSquad(Team team)
@@ -338,7 +346,7 @@ namespace GangWarSandbox.Gamemodes
 
             int members = GetMemberCountByType(team, team.VehicleSquads);
 
-            if (members >= (team.GetMaxNumPeds() * 0.10f)) // 10%
+            if (members >= (team.GetMaxNumPeds() * 0.15f)) // 15%
             {
                 return false;
             }
@@ -357,7 +365,7 @@ namespace GangWarSandbox.Gamemodes
 
             int members = GetMemberCountByType(team, team.WeaponizedVehicleSquads);
 
-            if (members >= (team.GetMaxNumPeds() * 0.10f)) // 10%
+            if (members >= (team.GetMaxNumPeds() * 0.5f)) // 5%
             {
                 return false;
             }
@@ -387,7 +395,10 @@ namespace GangWarSandbox.Gamemodes
         /// <summary>
         /// Listener for when the player dies. Used to determine custom effects during battle when the player dies. Executes *AFTER* the player respawns.
         /// </summary>
-        public virtual void OnPlayerDeath() { }
+        public virtual void OnPlayerDeath(int gameTime)
+        {
+
+        }
 
         public static bool ShouldBeTicked(GamemodeBool b)
         {

@@ -96,7 +96,7 @@ namespace GangWarSandbox
         bool PlayerDied = false;
         int TimeOfDeath;
 
-        void TrySeeLemonUI()
+        void TryLoadLemonUI()
         {
             // Ensure that LemonUI is loaded:
             try
@@ -159,7 +159,6 @@ namespace GangWarSandbox
 
         private void OnTick(object sender, EventArgs e)
         {
-            TrySeeLemonUI();
             Stopwatch sw = Stopwatch.StartNew();
 
             BattleSetupUI.MenuPool.Process();
@@ -174,40 +173,15 @@ namespace GangWarSandbox
             {
                 // Essentially "fakes" that the player is wanted while battles are occuring. This allows the player to use weapons inside
                 // houses.
-                Game.Player.IgnoredByPolice = true;
-                Game.MaxWantedLevel = 1;
-                Game.Player.WantedLevel = 0;
-                Function.Call(Hash.SET_FAKE_WANTED_LEVEL, 0);
+                Game.Player.DispatchsCops = false; // disable cop dispatches
+                Function.Call(Hash.HIDE_HUD_COMPONENT_THIS_FRAME, 1);
+                Function.Call(Hash.SET_BLOCK_WANTED_FLASH, true);
+                Game.Player.WantedLevel = 1;
 
-                // TODO: Improve player death handling
-                if (PlayerTeam != -1 && PlayerTeam != -2)
+                if (Player.IsDead)
                 {
-                    if (Player.IsDead)
-                    {
-                        PlayerDied = true;
-                        TimeOfDeath = GameTime;
-                    }
-
-                    if (PlayerDied && TimeOfDeath + 5000 <= GameTime)
-                    {
-                        // Player has died and respawned after 5 seconds
-                        Vector3 respawnLocation = Teams[PlayerTeam].SpawnPoints.Count > 0 ? Teams[PlayerTeam].SpawnPoints[0] : Vector3.Zero;
-
-                        if (respawnLocation == Vector3.Zero) return;
-                        Teams[PlayerTeam].Tier4Ped = Player; // Reset the Tier 4 Ped for the team
-
-                        GTA.UI.Screen.FadeOut(2000);
-                        Script.Wait(2000);
-
-                        Player.Position = respawnLocation; // Move player to the spawn point
-
-                        PlayerDied = false; // Reset death state
-
-                        CurrentGamemode.OnPlayerDeath();
-
-                        Script.Wait(500);
-                        GTA.UI.Screen.FadeIn(500); // Fade in for 500ms
-                    }
+                    PlayerDied = true;
+                    CurrentGamemode.OnPlayerDeath(GameTime);
                 }
 
                 CurrentGamemode.OnTickGameRunning();
@@ -300,7 +274,6 @@ namespace GangWarSandbox
             SpawnSquads();
 
             Game.Player.WantedLevel = 0; // Reset wanted level
-            Game.Player.DispatchsCops = false; // disable cop dispatches
             IsBattleRunning = true;
         }
 
@@ -316,6 +289,8 @@ namespace GangWarSandbox
             CleanupAll();
 
             Game.Player.DispatchsCops = true; // Re-enable cop dispatches
+            Game.Player.WantedLevel = 0;
+
         }
 
         private void SpawnSquads()
@@ -565,45 +540,63 @@ namespace GangWarSandbox
 
         public void ResetPlayerRelations()
         {
-            if (PlayerTeam < -1 || PlayerTeam >= Teams.Count)
-            {
-                Debug.WriteLine($"Warning: PlayerTeam index {PlayerTeam} out of range. Defaulting to no team.");
-                PlayerTeam = -1;
-            }
+            if (PlayerTeam < -2 || PlayerTeam >= Teams.Count)
+                PlayerTeam = -2;
 
-            // Reset all teams
+            // Force player into custom group
+            var PlayerGroup = Game.Player.Character.RelationshipGroup;
+
             foreach (var team in Teams)
             {
                 team.IsPlayerTeam = false;
 
-                if (PlayerTeam >= 0) // only set hate if PlayerTeam is valid
-                {
-                    Function.Call(Hash.SET_RELATIONSHIP_BETWEEN_GROUPS, (int)Relationship.Hate, Game.Player.Character.RelationshipGroup, Teams[PlayerTeam].Group);
-                    Function.Call(Hash.SET_RELATIONSHIP_BETWEEN_GROUPS, (int)Relationship.Hate, Teams[PlayerTeam].Group, Game.Player.Character.RelationshipGroup);
-                }
+                // Default everyone to hate player
+                Function.Call(Hash.SET_RELATIONSHIP_BETWEEN_GROUPS,
+                    (int)Relationship.Hate,
+                    PlayerGroup,
+                    team.Group);
+
+                Function.Call(Hash.SET_RELATIONSHIP_BETWEEN_GROUPS,
+                    (int)Relationship.Hate,
+                    team.Group,
+                    PlayerGroup);
             }
 
-            // Assign player to team or default
-            if (PlayerTeam == -1)
+            if (PlayerTeam <= -1)
             {
-                Game.Player.Character.RelationshipGroup = "PLAYER";
+                // Free agent: everyone respects player
                 foreach (var team in Teams)
                 {
-                    Function.Call(Hash.SET_RELATIONSHIP_BETWEEN_GROUPS, (int)Relationship.Respect, Game.Player.Character.RelationshipGroup, team.Group);
-                    Function.Call(Hash.SET_RELATIONSHIP_BETWEEN_GROUPS, (int)Relationship.Respect, team.Group, Game.Player.Character.RelationshipGroup);
+                    Function.Call(Hash.SET_RELATIONSHIP_BETWEEN_GROUPS,
+                        (int)Relationship.Respect,
+                        PlayerGroup,
+                        team.Group);
+
+                    Function.Call(Hash.SET_RELATIONSHIP_BETWEEN_GROUPS,
+                        (int)Relationship.Respect,
+                        team.Group,
+                        PlayerGroup);
                 }
             }
             else
             {
-                Function.Call(Hash.SET_RELATIONSHIP_BETWEEN_GROUPS, (int)Relationship.Companion, Game.Player.Character.RelationshipGroup, Teams[PlayerTeam].Group);
-                Function.Call(Hash.SET_RELATIONSHIP_BETWEEN_GROUPS, (int)Relationship.Companion, Teams[PlayerTeam].Group, Game.Player.Character.RelationshipGroup);
-                Teams[PlayerTeam].Tier4Ped = Player;
-                Teams[PlayerTeam].IsPlayerTeam = true;
+                var playerTeam = Teams[PlayerTeam];
 
-                if (Teams[PlayerTeam].SpawnPoints.Count > 0)
-                {
-                    Player.Position = Teams[PlayerTeam].SpawnPoints[0];
-                }
+                Function.Call(Hash.SET_RELATIONSHIP_BETWEEN_GROUPS,
+                    (int)Relationship.Companion,
+                    PlayerGroup,
+                    playerTeam.Group);
+
+                Function.Call(Hash.SET_RELATIONSHIP_BETWEEN_GROUPS,
+                    (int)Relationship.Companion,
+                    playerTeam.Group,
+                    PlayerGroup);
+
+                playerTeam.IsPlayerTeam = true;
+                playerTeam.Tier4Ped = Player;
+
+                if (playerTeam.SpawnPoints.Count > 0)
+                    Player.Position = playerTeam.SpawnPoints[0];
             }
         }
 

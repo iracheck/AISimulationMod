@@ -116,7 +116,7 @@ namespace GangWarSandbox.Gamemodes
             if (validTeams >= 2) return true;
             else
             {
-                GTA.UI.Screen.ShowSubtitle("You must have atleast two factions with a spawnpoint to start the battle.", 2500);
+                NotificationHandler.Send("You must have atleast two factions with a spawnpoint to start the battle.");
                 return false;
             }
         }
@@ -269,7 +269,6 @@ namespace GangWarSandbox.Gamemodes
                 if (target == Vector3.Zero)
                 {
                     Logger.LogError("A squad failed to find a valid target.");
-                    GTA.UI.Screen.ShowSubtitle("A squad failed to find a valid target. This is a bug, please report it to the developer.");
                 }
             }
 

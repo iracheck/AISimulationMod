@@ -107,7 +107,7 @@ namespace GangWarSandbox.Peds
 
         public static void DriveTo(Ped ped, Vehicle vehicle, Vector3 target)
         {
-            ped.Task.DriveTo(vehicle, target, 20f, 40f);
+            Function.Call(Hash.TASK_VEHICLE_GOTO_NAVMESH, ped, ped.CurrentVehicle, target.X, target.Y, target.Z, 30.0f, 156, 5.0f);
         }
 
         public static void DriveBy(Ped ped, Ped target)

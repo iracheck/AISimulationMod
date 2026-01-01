@@ -297,7 +297,10 @@ namespace GangWarSandbox
 
                 if 
                 (
-                    Game.GameTime - LastSquadSpawnTime[team] >= TIME_BETWEEN_SQUAD_SPAWNS &&
+                    (Game.GameTime - LastSquadSpawnTime[team] >= TIME_BETWEEN_SQUAD_SPAWNS
+                    ||
+                    team.Squads.Count <= 1)
+                    &&
                     CurrentGamemode.ShouldSpawnSquad(team, squadSize)
                 )
                 {

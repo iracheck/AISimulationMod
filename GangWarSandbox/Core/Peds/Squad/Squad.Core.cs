@@ -123,10 +123,7 @@ namespace GangWarSandbox.Peds
                 Ped ped = Members[i];
                 ped.AttachedBlip.Alpha = GetDesiredBlipVisibility(ped, Owner);
 
-                if (ped == null || !ped.Exists() || !ped.IsAlive || ped.IsRagdoll) continue; // skip to the next ped
-
-                // Block permanent events (e.g. automatic AI takeover in gta) when in vehicles
-                // ped.BlockPermanentEvents = ped.IsInVehicle() && !ped.IsInCombat;
+                if (ped == null || !ped.Exists() || !ped.IsAlive || ped.IsRagdoll) continue; // should remove them, but for now we can just skip to the next ped
 
                 // Gamemode based overrides
                 if (CurrentGamemode.AIOverride(this, ped)) continue;
@@ -137,7 +134,7 @@ namespace GangWarSandbox.Peds
                 // Handle logic on defending or assaulting capture points
                 PedAI_CapturePoint(ped);
 
-                if (ped.IsShooting && ped.IsInCombat|| PedAssignments[ped] == PedAssignment.AttackNearby || combat) continue;
+                if (ped.IsShooting && ped.IsInCombat || combat) continue;
 
                 // Handle logic with ped moving to and from its target
                 bool movementChecked = PedAI_Driving(ped);

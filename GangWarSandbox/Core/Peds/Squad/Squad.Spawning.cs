@@ -174,6 +174,7 @@ namespace GangWarSandbox.Peds
 
             CurrentGamemode.OnVehicleSpawn(SquadVehicle);
             SquadVehicle.AddBlip();
+            SquadVehicle.AttachedBlip.Sprite = BlipSprite.GangVehiclePolice;
 
             if (SquadVehicle.AttachedBlip == null) return;
 
@@ -188,8 +189,6 @@ namespace GangWarSandbox.Peds
         {
             if (type == VehicleSet.Type.Vehicle && (vehicle.IsBicycle || vehicle.IsMotorcycle))
                 vehicle.AttachedBlip.Sprite = BlipSprite.Motorcycle;
-            else if (type == VehicleSet.Type.Vehicle)
-                vehicle.AttachedBlip.Sprite = BlipSprite.GangVehiclePolice;
             else if (type == VehicleSet.Type.WeaponizedVehicle)
                 vehicle.AttachedBlip.Sprite = BlipSprite.TechnicalAqua;
             else if (type == VehicleSet.Type.Helicopter)

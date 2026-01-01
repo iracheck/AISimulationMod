@@ -156,12 +156,11 @@ namespace GangWarSandbox
 
             if (IsBattleRunning)
             {
-                // Essentially "fakes" that the player is wanted while battles are occuring. This allows the player to use weapons inside
-                // houses.
-                //Game.Player.DispatchsCops = false; // disable cop dispatches
-                //Function.Call(Hash.HIDE_HUD_COMPONENT_THIS_FRAME, 1);
-                //Function.Call(Hash.SET_BLOCK_WANTED_FLASH, true);
-                //Game.Player.WantedLevel = 1;
+                // Essentially "fakes" that the player is wanted while battles are occuring. This allows the player to use weapons inside their safehouses AND prevents the player from swapping targets.
+                Game.Player.DispatchsCops = false; // disable cop dispatches
+                Function.Call(Hash.HIDE_HUD_COMPONENT_THIS_FRAME, 1);
+                Function.Call(Hash.SET_BLOCK_WANTED_FLASH, true);
+                Game.Player.WantedLevel = 1;
 
                 if (Player.IsDead)
                 {
@@ -547,7 +546,7 @@ namespace GangWarSandbox
                     PlayerGroup);
             }
 
-            if (PlayerTeam <= -1)
+            if (PlayerTeam == -1)
             {
                 // Free agent: everyone respects player
                 foreach (var team in Teams)
@@ -561,6 +560,14 @@ namespace GangWarSandbox
                         (int)Relationship.Respect,
                         team.Group,
                         PlayerGroup);
+                }
+            }
+            else if (PlayerTeam == -2)
+            {
+                // Everyone hates player
+                foreach (var team in Teams)
+                {
+                    Function.Call(Hash.SET_RELATIONSHIP_BETWEEN_GROUPS, (int)Relationship.Hate, PlayerGroup)
                 }
             }
             else

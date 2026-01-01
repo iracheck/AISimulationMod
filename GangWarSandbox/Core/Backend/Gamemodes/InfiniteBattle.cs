@@ -1,5 +1,8 @@
-﻿using GTA;
-using GangWarSandbox.Gamemodes;
+﻿using GangWarSandbox.Gamemodes;
+using GangWarSandbox.Utilities;
+using GTA;
+using GTA.Math;
+using GTA.Native;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,6 +20,47 @@ namespace GangWarSandbox.Gamemodes
         // 
         public InfiniteBattleGamemode() : base("Infinite Battle", "Peds will spawn forever, putting you in a battle that never ends!", 4)
         { }
+
+        private bool isRespawning = false;
+
+        public override void OnTickGameRunning()
+        {
+            int deathTime = 0;
+            const int TIME_TO_WAIT_AFTER_DEATH = 1500; // in ms
+
+            Game.Player.Character.InjuryHealthThreshold = 99;
+
+            if (Game.Player.Character.IsInjured && !isRespawning)
+            {
+
+                isRespawning = true;
+                deathTime = Game.GameTime;
+
+                Game.Player.Character.Health = 200;
+                Function.Call(Hash.IGNORE_NEXT_RESTART, true);
+                Function.Call(Hash.FORCE_GAME_STATE_PLAYING);
+
+                Function.Call(Hash.FREEZE_ENTITY_POSITION, Game.Player.Handle, true);
+                Function.Call(Hash.DISABLE_ALL_CONTROL_ACTIONS, 0);
+
+                Function.Call(Hash.SET_PED_TO_RAGDOLL_WITH_FALL, Game.Player.Handle, 1500, 2000, 0, Game.Player.Character.ForwardVector.X, 0f, 0f, 1f, 0f, 0f, 0f, 0f, 0f, 0f);
+
+
+            }
+
+            if (isRespawning && Game.GameTime - TIME_TO_WAIT_AFTER_DEATH > deathTime)
+            {
+                isRespawning = false;
+                Game.Player.IsInvincible = false;
+
+                Vector3 spawn = Mod.Teams[0].SpawnPoints[0];
+
+                Function.Call(Hash.NETWORK_RESURRECT_LOCAL_PLAYER, spawn.X, spawn.Y, spawn.Z, 90f, false, false, false, false, false);
+
+
+
+            }
+        }
 
     }
 }

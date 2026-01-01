@@ -175,7 +175,7 @@ namespace GangWarSandbox
             MenuPool.Add(TeamSetupMenu);
 
             // PLAYER TEAM SETUP
-            List<string> playerTeamOptions = new List<string>() { "Neutral", "Hates Everyone", "Team 1" };
+            List<string> playerTeamOptions = new List<string>() { "Hates Everyone", "Neutral", "Team 1" };
 
             var playerTeamItem = new NativeListItem<string>("Player Team", playerTeamOptions.ToArray());
             playerTeamItem.Description = "The team of the player character.";
@@ -308,8 +308,8 @@ namespace GangWarSandbox
 
         public static int LoadPlayerTeamChoice()
         {
-            if (Mod.PlayerTeam == -2) return 1;
-            if (Mod.PlayerTeam == -1) return 0; // Neutral
+            if (Mod.PlayerTeam == -2) return 0;
+            if (Mod.PlayerTeam == -1) return 1; // Neutral
             else
             {
                 return Mod.PlayerTeam + 2;

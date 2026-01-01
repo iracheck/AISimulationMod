@@ -37,7 +37,7 @@ namespace GangWarSandbox
         private const int TIME_BETWEEN_SQUAD_SPAWNS = 3000; // Time in milliseconds between squad spawns for each team
 
         // Teams
-        public int PlayerTeam = -1;
+        public int PlayerTeam = 0; // -1 is 
         public List<Team> Teams = new List<Team>();
         public Dictionary<string, Faction> Factions = new Dictionary<string, Faction>();
         public Dictionary<Team, float> LastSquadSpawnTime = new Dictionary<Team, float>(); // Track last spawn time for each team to prevent spamming or crowding
@@ -81,7 +81,7 @@ namespace GangWarSandbox
         public bool UseWeaponizedVehicles = false;
         public bool UseHelicopters = false;
 
-        public Gamemode CurrentGamemode = new InfiniteBattleGamemode();
+        public Gamemode CurrentGamemode;
         public List<Gamemode> AvaliableGamemodes = new List<Gamemode>
         {
             new InfiniteBattleGamemode(),
@@ -96,25 +96,10 @@ namespace GangWarSandbox
         bool PlayerDied = false;
         int TimeOfDeath;
 
-        void TryLoadLemonUI()
-        {
-            // Ensure that LemonUI is loaded:
-            try
-            {
-                NativeMenu menu = new NativeMenu("test");
-            }
-            catch (Exception ex)
-            {
-                Logger.Log(ex.ToString());
-                Logger.Log("GangWarSandbox shutting down due to LemonUI failing to load.");
-                NotificationHandler.Send("~r~Warning: ~w~LemonUI failed to load. Please ensure you are using LemonUI 2.2 or newer, and that it is installed in your GTA5 scripts folder. Without LemonUI, you will not be able to play the mod.");
-                return;
-            }
-        }
-
         public GangWarSandbox()
         {
             Instance = this;
+            CurrentGamemode = AvaliableGamemodes[0];
 
             Logger.Log("GangWarSandbox loaded using build " + GWSMeta.Version + ", built on date: " + GWSMeta.BuildDate.ToString() + ".\n", "META");
 
@@ -173,10 +158,10 @@ namespace GangWarSandbox
             {
                 // Essentially "fakes" that the player is wanted while battles are occuring. This allows the player to use weapons inside
                 // houses.
-                Game.Player.DispatchsCops = false; // disable cop dispatches
-                Function.Call(Hash.HIDE_HUD_COMPONENT_THIS_FRAME, 1);
-                Function.Call(Hash.SET_BLOCK_WANTED_FLASH, true);
-                Game.Player.WantedLevel = 1;
+                //Game.Player.DispatchsCops = false; // disable cop dispatches
+                //Function.Call(Hash.HIDE_HUD_COMPONENT_THIS_FRAME, 1);
+                //Function.Call(Hash.SET_BLOCK_WANTED_FLASH, true);
+                //Game.Player.WantedLevel = 1;
 
                 if (Player.IsDead)
                 {

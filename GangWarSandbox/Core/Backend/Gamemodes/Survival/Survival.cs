@@ -39,25 +39,29 @@ namespace GangWarSandbox.Gamemodes
         {
             // max squads(total) (0) - vehicles (1) - weaponized vehicles (2) - helicopters (3) - max faction tier[1-3] (4) - threat weight (5)
             new int[] { 2, 1, 0, 0, 1, 0 }, // 1
-            new int[] { 3, 2, 0, 0, 1, 120 }, // 2
-            new int[] { 4, 2, 0, 0, 1, 600 }, // 3
-            new int[] { 5, 3, 0, 0, 1, 1200 }, // 4
+            new int[] { 3, 2, 0, 0, 1, 80 }, // 2
+            new int[] { 4, 2, 0, 0, 1, 400 }, // 3
+            new int[] { 5, 3, 0, 0, 1, 900 }, // 4
             new int[] { 5, 3, 0, 1, 1, 1800 }, // 5
             new int[] { 6, 4, 0, 1, 2, 2700 }, // 6
-            new int[] { 6, 3, 0, 1, 2, 3900 }, // 7
-            new int[] { 6, 3, 1, 1, 2, 5300 }, // 8
+            new int[] { 6, 4, 0, 1, 2, 3900 }, // 7
+            new int[] { 7, 3, 1, 1, 2, 5300 }, // 8
             new int[] { 7, 4, 1, 1, 2, 6900 }, // 9
-            new int[] { 7, 3, 1, 1, 3, 8200 }, // 10
+            new int[] { 8, 3, 1, 1, 3, 8200 }, // 10
             new int[] { 8, 3, 1, 2, 3, 9500 }, // 11
-            new int[] { 8, 3, 1, 2, 3, 11500 }, // 12
+            new int[] { 9, 3, 1, 2, 3, 11500 }, // 12
             new int[] { 9, 4, 1, 2, 3, 14000 }, // 13
-            new int[] { 9, 4, 1, 2, 3, 18000 }, // 14
-            new int[] { 10, 4, 2, 3, 3, 24000 }, // 15
-            new int[] { 11, 5, 3, 3, 3, 40000 }, // 16 - Endgame
+            new int[] { 10, 4, 1, 2, 3, 18000 }, // 14
+            new int[] { 11, 4, 2, 3, 3, 24000 }, // 15
+            new int[] { 12, 5, 3, 3, 3, 40000 }, // 16 - Endgame
         };
 
         int Combo;
         int ComboLastTime;
+
+        int HighestCombo;
+
+        int Kills;
 
         public SurvivalGamemode() : base("Survival", "Survive as long as possible. Kill enemies to earn points, and try to achieve the highest score you can! Just like trying to survive against the cops for as long as possible.\n\n[WORK IN PROGRESS]", 0)
         {
@@ -90,6 +94,12 @@ namespace GangWarSandbox.Gamemodes
 
             SetRelationships();
         }
+
+        public override void OnEnd()
+        {
+            // todo
+        }
+
 
         public override void OnPlayerDeath(int gameTime)
         {
@@ -166,7 +176,12 @@ namespace GangWarSandbox.Gamemodes
             //gamemodeMenu.Add(missions);
 
             return new List<NativeMenu>(){gamemodeMenu};
-        } 
+        }
+
+        public override void OnTick()
+        {
+
+        }
 
         public override void OnTickGameRunning()
         {
@@ -188,6 +203,7 @@ namespace GangWarSandbox.Gamemodes
         {
             float multiplier = 0.5f;
             Entity killer = ped.Killer;
+            Kills++;
 
             if (killer != Game.Player.Character) multiplier *= 0.75f;
 
@@ -195,6 +211,7 @@ namespace GangWarSandbox.Gamemodes
             if (ComboLastTime > Game.GameTime - 7000)
             {
                 Combo++;
+                if (Combo > HighestCombo) HighestCombo = Combo;
             }
 
             // Get 50% of the max health of the ped, scaled by the current threat level and how deep the combo is
@@ -381,6 +398,14 @@ namespace GangWarSandbox.Gamemodes
 
 
             }
+        }
+
+        public int CalculateMoneyEarned()
+        {
+            int val = 0;
+
+            val = (50 * HighestCombo) + (25 * Kills) + ((PlayerScore - 5000));
+            return Helpers.Clamp(val, 0, 25000);
         }
 
         public bool UpdateThreatLevel()

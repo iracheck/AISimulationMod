@@ -153,8 +153,6 @@ namespace GangWarSandbox.Gamemodes
         /// </summary>
         public virtual void OnStart()
         {
-            Vector3 pt = GangWarSandbox.Instance.Teams[0].SpawnPoints[0];
-            Function.Call(Hash.SET_RESTART_COORD_OVERRIDE, pt.X, pt.Y, pt.Z, 0);
         }
 
         /// <summary>

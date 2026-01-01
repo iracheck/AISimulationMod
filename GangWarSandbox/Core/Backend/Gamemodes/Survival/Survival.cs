@@ -404,9 +404,14 @@ namespace GangWarSandbox.Gamemodes
         {
             int val = 0;
 
-            val = (50 * HighestCombo) + (25 * Kills) + ((PlayerScore - 0));
-            NotificationHandler.Send(val.ToString());
-            return Helpers.Clamp(val, 25000, 0);
+            val = (50 * HighestCombo) + (25 * Kills) + ((PlayerScore - 5000));
+            if (val > 499)
+            {
+                NotificationHandler.SendFromLester("Nice show. Here's a tip, from your good pal Lester. $" + val.ToString() + " was sent to your account.");
+                return Helpers.Clamp(val, 25000, 0);
+            }
+
+            return 0;
         }
 
         public bool UpdateThreatLevel()
@@ -417,8 +422,6 @@ namespace GangWarSandbox.Gamemodes
             // This combined score is used to determine the current threat level, which is then used to scale the difficulty of the gamemode.
 
             double threatWeight = (TimeElapsed / 1000) + (PlayerScore * 0.2);
-
-            if (Game.Player.Character.IsInVehicle() && CurrentThreatLevel < 2) CurrentThreatLevel = 2;
 
             if (CurrentThreatLevel < ThreatLevelSettings.Count - 1 && threatWeight > ThreatLevelSettings[CurrentThreatLevel + 1][5])
             {

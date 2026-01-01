@@ -140,18 +140,18 @@ namespace GangWarSandbox.Peds
             {
                 SpawnPos.Z += 95;
 
-                SpawnVehicle(VehicleSet.Type.Helicopter, SpawnPos);
+                SpawnVehicle(VehicleSet.Type.Helicopter, SpawnPos, CurrentGamemode.SpawnMethod == Gamemode.GamemodeSpawnMethod.Random);
                 Owner.HelicopterSquads.Add(this);
             }
             else if (Type == SquadType.WeaponizedVehicle && ModData.CurrentGamemode.SpawnWeaponizedVehicles) // weaponized vehicle
             {
                 IsWeaponizedVehicle = true;
-                SpawnVehicle(VehicleSet.Type.WeaponizedVehicle, SpawnPos);
+                SpawnVehicle(VehicleSet.Type.WeaponizedVehicle, SpawnPos, CurrentGamemode.SpawnMethod == Gamemode.GamemodeSpawnMethod.Random);
                 Owner.WeaponizedVehicleSquads.Add(this);
             }
             else if (Type == SquadType.CarVehicle && ModData.CurrentGamemode.SpawnVehicles) // reg vehicle
             {
-                SpawnVehicle(VehicleSet.Type.Vehicle, SpawnPos);
+                SpawnVehicle(VehicleSet.Type.Vehicle, SpawnPos, CurrentGamemode.SpawnMethod == Gamemode.GamemodeSpawnMethod.Random);
                 Owner.VehicleSquads.Add(this);
             }
             else // infantry

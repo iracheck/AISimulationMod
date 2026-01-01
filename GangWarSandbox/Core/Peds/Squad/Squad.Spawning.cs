@@ -148,7 +148,7 @@ namespace GangWarSandbox.Peds
             return ped;
         }
 
-        public void SpawnVehicle(VehicleSet.Type type, Vector3 position)
+        public void SpawnVehicle(VehicleSet.Type type, Vector3 position, bool shouldFacePlayer = false)
         {
             if (Owner.TeamVehicles == null) return;
 
@@ -157,9 +157,20 @@ namespace GangWarSandbox.Peds
 
             if (!model.IsValid || !model.IsVehicle) return;
 
-            SquadVehicle = World.CreateVehicle(model, position);
+            float spawnHeading = 0;
+
+            if (shouldFacePlayer)
+            {
+                Vector3 toPlayer = (Game.Player.Character.Position - position).Normalized;
+                spawnHeading = (float)(Math.Atan2(toPlayer.Y, toPlayer.X) * 180.0 / Math.PI);
+
+                if (Game.Player.Character.IsInVehicle() && Game.Player.Character.CurrentVehicle.Velocity.Length() >= 50) spawnHeading = (spawnHeading + 180f) % 360f;
+            }
+
+            SquadVehicle = World.CreateVehicle(model, position, spawnHeading);
 
             if (SquadVehicle == null) return;
+
 
             CurrentGamemode.OnVehicleSpawn(SquadVehicle);
             SquadVehicle.AddBlip();
@@ -191,6 +202,7 @@ namespace GangWarSandbox.Peds
             return spawn.Z >= playerPos.Z - tolerance && spawn.Z <= playerPos.Z + tolerance;
         }
 
+
         public Vector3 FindRandomPositionAroundPlayer(int radius = 200, int minRadius = 100)
         {
             Ped player = Game.Player.Character;
@@ -201,23 +213,28 @@ namespace GangWarSandbox.Peds
             int MAX_ATTEMPTS = 25;
 
             bool playerInVehicle = player.IsInVehicle();
+            bool isVehicleSquad = IsVehicleSquad();
 
             if (radius < minRadius) radius = minRadius;
 
             Vector3 forward = player.ForwardVector.Normalized;
 
-            while (true)
+            while (attempts <= MAX_ATTEMPTS)
             {
                 attempts++;
 
                 float distance = (float)(minRadius + Rand.NextDouble() * (radius - minRadius));
                 float angle;
 
+                // only for vehicles
+                bool vehicleForwardBias = false;
+
                 // Forward bias for vehicle mode
                 if (playerInVehicle)
                 {
                     if (Rand.NextDouble() < 0.85)
                     {
+                        vehicleForwardBias = true;
                         float cone = 20f * (float)Math.PI / 180f;
                         float forwardAngle = (float)Math.Atan2(forward.Y, forward.X);
                         angle = forwardAngle + (float)(Rand.NextDouble() * cone - cone / 2f);
@@ -269,38 +286,60 @@ namespace GangWarSandbox.Peds
                 bool noPedsNearby = World.GetNearbyPeds(newSpawnPoint, 3f).Length == 0;
                 if (!(noEntitiesNearby && noPedsNearby))
                 {
-                    if (attempts >= MAX_ATTEMPTS) return Vector3.Zero;
                     continue;
                 }
 
-                // Z-level check
+
+
+                // Ensure that they are not too close to the player. However, if the player cant see them, they can spawn a little closer
+
+                float minVehicleDistance = 50f;
+                float minInfantryDistance = 20f;
+
+                RaycastResult result = World.Raycast(newSpawnPoint, GameplayCamera.Position, IntersectFlags.Map);
+                if (!result.DidHit)
+                {
+                    minVehicleDistance += 70f;
+                    minInfantryDistance += 40f;
+                }
+
+                if (vehicleForwardBias) minVehicleDistance += Game.Player.Character.CurrentVehicle.Speed;
+
+                if (newSpawnPoint.DistanceTo2D(playerPos) < (isVehicleSquad ? minVehicleDistance : minInfantryDistance))
+                {
+                    continue;
+                }
+
+                bool zValid = false;
+
+                // Make sure they spawn at an appropriate Z-level. Try to get z-levels that are the same as the players first, but if none of those succeed, fallback to reasonable (20-40m difference) levels
                 if (newSpawnPoint.Z < player.Position.Z - 5f || newSpawnPoint.Z > player.Position.Z + 5f)
                 {
-                    if (attempts >= MAX_ATTEMPTS - 5)
-                    {
-                        if (!IsValidZ(newSpawnPoint, playerPos, IsVehicleSquad()))
-                            continue;
-                    }
-                    else if (newSpawnPoint.DistanceTo2D(playerPos) < (IsVehicleSquad() ? 120f : 70f))
-                    {
-                        if (attempts >= MAX_ATTEMPTS) return Vector3.Zero;
-                        continue;
-                    }
-
-                    // Check if under the map
-                    Vector3 rayStart = newSpawnPoint + new Vector3(0, 0, 100f);
-                    Vector3 rayEnd = newSpawnPoint;
-                    RaycastResult downcast = World.Raycast(rayStart, rayEnd, IntersectFlags.Map);
-                    RaycastResult upcast = World.Raycast(newSpawnPoint, newSpawnPoint + new Vector3(0, 0, 15f), IntersectFlags.Map);
-
-                    if (!upcast.DidHit && downcast.DidHit && downcast.HitPosition.DistanceTo(newSpawnPoint) <= 15f)
-                    {
-                        newSpawnPoint = downcast.HitPosition;
-                    }
-
-                    return newSpawnPoint;
+                    zValid = true;
                 }
+                else if (attempts >= MAX_ATTEMPTS - 5 && IsValidZ(newSpawnPoint, playerPos, isVehicleSquad) )
+                {
+                    zValid = true;
+                }
+
+                if (zValid) continue;
+
+
+                // Check if under the map
+                Vector3 rayStart = newSpawnPoint + new Vector3(0, 0, 100f);
+                Vector3 rayEnd = newSpawnPoint;
+                RaycastResult downcast = World.Raycast(rayStart, rayEnd, IntersectFlags.Map);
+                RaycastResult upcast = World.Raycast(newSpawnPoint, newSpawnPoint + new Vector3(0, 0, 15f), IntersectFlags.Map);
+
+                if (!upcast.DidHit && downcast.DidHit && downcast.HitPosition.DistanceTo(newSpawnPoint) <= 15f)
+                {
+                    newSpawnPoint = downcast.HitPosition;
+                }
+
+                return newSpawnPoint;
             }
+
+            return new Vector3(0, 0, 0);
         }
 
 

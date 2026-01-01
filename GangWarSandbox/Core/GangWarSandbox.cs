@@ -118,7 +118,11 @@ namespace GangWarSandbox
             }
             else if (Factions.Count == 1)
             {
-                NotificationHandler.Send("~r~Warning: ~w~GangWarSandbox works best with more than one faction. While you can play with all teams being the same, it's more fun to add more.");
+                NotificationHandler.Send("~r~Warning: ~w~GangWarSandbox works best with more than one faction. While you can play with all teams being the same, it's more fun to add more. To add factions, visit the \"Factions\" subfolder in the mod files.");
+            }
+            else if (DEBUG)
+            {
+                NotificationHandler.Send("GangWarSandbox loaded in ~r~debug mode~w~.");
             }
             else
             {
@@ -161,6 +165,8 @@ namespace GangWarSandbox
                 Function.Call(Hash.HIDE_HUD_COMPONENT_THIS_FRAME, 1);
                 Function.Call(Hash.SET_BLOCK_WANTED_FLASH, true);
                 Game.Player.WantedLevel = 1;
+
+                Function.Call(Hash.CLEAR_AREA_OF_COPS, Player.Position.X, Player.Position.Y, Player.Position.Z, 1000f);
 
                 if (Player.IsDead)
                 {
@@ -240,6 +246,7 @@ namespace GangWarSandbox
             if (IsBattleRunning || !CurrentGamemode.CanStartBattle()) return;
 
             ResetPlayerRelations();
+            
 
             for (int i = 0; i < CapturePoints.Count; i++)
             {
@@ -259,6 +266,8 @@ namespace GangWarSandbox
 
             Game.Player.WantedLevel = 0; // Reset wanted level
             IsBattleRunning = true;
+            Function.Call(Hash.SET_POLICE_IGNORE_PLAYER, Player.Handle, true);
+
         }
 
         public void StopBattle()
@@ -269,11 +278,11 @@ namespace GangWarSandbox
 
             CurrentGamemode.OnEnd();
 
-            GTA.UI.Screen.ShowSubtitle("Battle Ended!");
             CleanupAll();
 
             Game.Player.DispatchsCops = true; // Re-enable cop dispatches
             Game.Player.WantedLevel = 0;
+            Function.Call(Hash.SET_POLICE_IGNORE_PLAYER, Player.Handle, false);
 
         }
 
@@ -525,7 +534,7 @@ namespace GangWarSandbox
         public void ResetPlayerRelations()
         {
             if (PlayerTeam < -2 || PlayerTeam >= Teams.Count)
-                PlayerTeam = -2;
+                PlayerTeam = -1;
 
             // Force player into custom group
             var PlayerGroup = Game.Player.Character.RelationshipGroup;
@@ -546,7 +555,9 @@ namespace GangWarSandbox
                     PlayerGroup);
             }
 
-            if (PlayerTeam == -1)
+
+            if (PlayerTeam == -2) return;
+            else if (PlayerTeam == -1)
             {
                 // Free agent: everyone respects player
                 foreach (var team in Teams)
@@ -560,14 +571,6 @@ namespace GangWarSandbox
                         (int)Relationship.Respect,
                         team.Group,
                         PlayerGroup);
-                }
-            }
-            else if (PlayerTeam == -2)
-            {
-                // Everyone hates player
-                foreach (var team in Teams)
-                {
-                    Function.Call(Hash.SET_RELATIONSHIP_BETWEEN_GROUPS, (int)Relationship.Hate, PlayerGroup)
                 }
             }
             else

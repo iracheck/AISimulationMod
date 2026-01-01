@@ -230,7 +230,7 @@ namespace GangWarSandbox.Peds
             float distFromPlayer = vehicle.Position.DistanceTo(Game.Player.Character.Position);
             if (Game.Player.Character.CurrentVehicle == vehicle) return 0; // hide players current vehicle
 
-            if (CurrentGamemode.FogOfWar == false) return 255;
+            if (CurrentGamemode.FogOfWar == false || GWSettings.DEBUG) return 255;
             
             if (vehicle.PassengerCount != 0 && !(distFromPlayer > 160f))
             {

@@ -97,7 +97,7 @@ namespace GangWarSandbox.Gamemodes
 
         public override void OnEnd()
         {
-            // todo
+            Game.Player.Money += CalculateMoneyEarned();
         }
 
 
@@ -404,8 +404,9 @@ namespace GangWarSandbox.Gamemodes
         {
             int val = 0;
 
-            val = (50 * HighestCombo) + (25 * Kills) + ((PlayerScore - 5000));
-            return Helpers.Clamp(val, 0, 25000);
+            val = (50 * HighestCombo) + (25 * Kills) + ((PlayerScore - 0));
+            NotificationHandler.Send(val.ToString());
+            return Helpers.Clamp(val, 25000, 0);
         }
 
         public bool UpdateThreatLevel()

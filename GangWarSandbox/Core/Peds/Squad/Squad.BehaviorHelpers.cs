@@ -133,8 +133,6 @@ namespace GangWarSandbox.Peds
                 }
                 else if (PedAssignments[ped] != PedAssignment.RunToPosition && !ped.IsInVehicle())
                 {
-                    ped.Task.ClearAll(); // breaks their combat state
-
                     AISubTasks.RunToFarAway(ped, nearbyEnemy.Position);
                     PedAssignments[ped] = PedAssignment.RunToPosition;
                 }

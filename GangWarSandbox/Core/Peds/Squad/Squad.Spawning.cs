@@ -174,10 +174,12 @@ namespace GangWarSandbox.Peds
 
             CurrentGamemode.OnVehicleSpawn(SquadVehicle);
             SquadVehicle.AddBlip();
-            SquadVehicle.AttachedBlip.Sprite = BlipSprite.GangVehiclePolice;
+
+            if (SquadVehicle.AttachedBlip == null) SquadVehicle.AddBlip(); // try again, because of edge cases
 
             if (SquadVehicle.AttachedBlip == null) return;
 
+            SquadVehicle.AttachedBlip.Sprite = BlipSprite.GangVehiclePolice;
             GetCorrectBlipForVehicle(type, SquadVehicle);
 
             SquadVehicle.AttachedBlip.Name = $"Team {Owner.Name} Vehicle";
@@ -298,8 +300,8 @@ namespace GangWarSandbox.Peds
                 RaycastResult result = World.Raycast(newSpawnPoint, GameplayCamera.Position, IntersectFlags.Map);
                 if (!result.DidHit)
                 {
-                    minVehicleDistance += 100f;
-                    minInfantryDistance += 60f;
+                    minVehicleDistance += 70f;
+                    minInfantryDistance += 50f;
                 }
 
                 if (vehicleForwardBias) minVehicleDistance += Game.Player.Character.CurrentVehicle.Speed;

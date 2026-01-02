@@ -649,7 +649,14 @@ namespace GangWarSandbox
                         Vector3 squadLeaderPos = squad.SquadLeader.Position;
                         Vector3 targetPos = squad.Waypoints[0];
 
-                        World.DrawLine(squadLeaderPos, targetPos, Color.LimeGreen);
+                        if (squad.SquadLeader.IsInVehicle())
+                        {
+                            World.DrawLine(squad.SquadLeader.CurrentVehicle.Position, targetPos, Color.LimeGreen);
+                        }
+                        else
+                        {
+                            World.DrawLine(squadLeaderPos, targetPos, Color.LimeGreen);
+                        }
                     }
                 }
             }

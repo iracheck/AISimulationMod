@@ -222,7 +222,7 @@ namespace GangWarSandbox.Peds
         private int GetDesiredVehicleBlipVisiblity(Vehicle vehicle, Team team)
         {
             float distFromPlayer = vehicle.Position.DistanceTo(Game.Player.Character.Position);
-            if (Game.Player.Character.CurrentVehicle == vehicle) return 0; // hide players current vehicle
+            if (Game.Player.Character.CurrentVehicle == vehicle || vehicle.PassengerCount == 0) return 0; // hide players current vehicle
 
             if (CurrentGamemode.FogOfWar == false || GWSettings.DEBUG) return 255;
             

@@ -238,7 +238,7 @@ namespace GangWarSandbox
             MenuPool.Add(BattleOptionsMenu);
 
             // A multiplier from the value located in the faction settings, max of 10x
-            var unitCountMultiplier = new NativeSliderItem("Unit Count Multiplier", "Current Multiplier: 1.0x", 100, 10);
+            var unitCountMultiplier = new NativeSliderItem("Unit Count Multiplier", "Current Multiplier: 1.0x", 100, (int)(gm.UnitCountMultiplier * 10));
 
             // Values letting the user decide if they want to allow vehicles, weaponized vehicles, and helicopters in the battle
             var allowVehicles = new NativeCheckboxItem("Vehicles", "Allow non-weaponized vehicles to be used in the battle.", gm.SpawnVehicles);
@@ -248,8 +248,10 @@ namespace GangWarSandbox
                 "Due to early access, their modified AI has not been fully completed. Helicopters harm the flow of the battle, so do not expect fluid results.", gm.SpawnHelicopters);
             var fogOfWar = new NativeCheckboxItem("Fog of War", "Fog of war adds an area in which you cannot see enemies on the minimap. Note that fog of war does not disable fading blips from dying npcs.", gm.FogOfWar);
 
+            unitCountMultiplier.Description = "Current Multiplier: " + Mod.CurrentGamemode.UnitCountMultiplier + "x";
             unitCountMultiplier.ValueChanged += (item, args) =>
             {
+                if (unitCountMultiplier.Value == 0) unitCountMultiplier.Value = 1;
                 Mod.CurrentGamemode.UnitCountMultiplier = ((float)unitCountMultiplier.Value) / 10;
                 unitCountMultiplier.Description = "Current Multiplier: " + Mod.CurrentGamemode.UnitCountMultiplier + "x";
             };

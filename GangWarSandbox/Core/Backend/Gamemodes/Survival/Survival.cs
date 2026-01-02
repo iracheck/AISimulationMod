@@ -20,6 +20,8 @@ namespace GangWarSandbox.Gamemodes
         double TimeStart;
         double TimeElapsed;
 
+        bool HealOnKill = true;
+
         // Gamemode States
         int CurrentThreatLevel; // Current level of the survival gamemode, used for difficulty scaling
 
@@ -41,10 +43,10 @@ namespace GangWarSandbox.Gamemodes
             new int[] { 2, 1, 0, 0, 1, 0 }, // 1
             new int[] { 3, 2, 0, 0, 1, 80 }, // 2
             new int[] { 4, 2, 0, 0, 1, 400 }, // 3
-            new int[] { 5, 3, 0, 0, 1, 900 }, // 4
-            new int[] { 5, 3, 0, 1, 1, 1800 }, // 5
+            new int[] { 5, 3, 0, 1, 1, 900 }, // 4
+            new int[] { 6, 4, 0, 1, 1, 1800 }, // 5
             new int[] { 6, 4, 0, 1, 2, 2700 }, // 6
-            new int[] { 6, 4, 0, 1, 2, 3900 }, // 7
+            new int[] { 6, 3, 0, 1, 2, 3900 }, // 7
             new int[] { 7, 3, 1, 1, 2, 5300 }, // 8
             new int[] { 7, 4, 1, 1, 2, 6900 }, // 9
             new int[] { 8, 3, 1, 1, 3, 8200 }, // 10
@@ -71,11 +73,14 @@ namespace GangWarSandbox.Gamemodes
             EnableParameter_AllowVehicles = GamemodeBool.True;
             EnableParameter_AllowHelicopters = GamemodeBool.True;
 
-            EnableParameter_FogOfWar = GamemodeBool.False;
+            EnableParameter_FogOfWar = GamemodeBool.PlayerChoice;
             FogOfWar = true;
 
             EnableParameter_CapturePoints = GamemodeBool.False;
             EnableParameter_Spawnpoints = GamemodeBool.False;
+
+            // survival has no juggernauts, yet.
+            HasTier4Ped = false;
         }
 
         // GAMEMODE PROVIDED OVERRIDDEN METHODS BEGIN HERE
@@ -83,7 +88,7 @@ namespace GangWarSandbox.Gamemodes
         public override void OnStart()
         {
             Mod.ClearAllPoints();
-            Mod.PlayerTeam = -2;
+            Mod.PlayerTeam = 0;
             TimeStart = Game.GameTime;
             
             PlayerScore = 0;
@@ -119,6 +124,13 @@ namespace GangWarSandbox.Gamemodes
 
             NativeMenu gamemodeMenu = new NativeMenu("Survival Settings", "Survival Settings", "Modify the settings of your Survival gamemode, such as the factions hunting you.");
             BattleSetupUI.MenuPool.Add(gamemodeMenu);
+
+            var healOnKill = new NativeCheckboxItem($"Heal on Kill", "Heal a small amount of health upon killing an enemy.");
+            healOnKill.Checked = HealOnKill;
+            healOnKill.CheckboxChanged += (item, args) =>
+            {
+                HealOnKill = healOnKill.Checked;
+            };
 
             var level1Enemy = new NativeListItem<string>($"Tier 1 Hunter Faction", Mod.Factions.Keys.ToArray());
             level1Enemy.Description = "The primary team that appears to hunt you. These will always appear.";
@@ -205,7 +217,9 @@ namespace GangWarSandbox.Gamemodes
             Entity killer = ped.Killer;
             Kills++;
 
-            if (killer != Game.Player.Character) multiplier *= 0.75f;
+            if (killer != Game.Player.Character) multiplier *= 0.4f;
+
+            if (HealOnKill) Game.Player.Character.Health += 5;
 
             // Increase combo if the player has killed another ped within 7 seconds
             if (ComboLastTime > Game.GameTime - 7000)
@@ -356,8 +370,8 @@ namespace GangWarSandbox.Gamemodes
         {
             foreach (var ped in squad.Members)
             {
-                ped.Health = 120 + (CurrentThreatLevel * 5);
-                ped.Accuracy = (int) (ped.Accuracy * 0.5);
+                ped.Health = 120 + (CurrentThreatLevel * 3);
+                ped.Accuracy = (int)(ped.Accuracy * 0.3f);
 
                 if (ped.AttachedBlip != null) ped.AttachedBlip.Color = BlipColor.Red;
             }

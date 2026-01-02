@@ -169,7 +169,7 @@ namespace GangWarSandbox
                 Function.Call(Hash.SET_BLOCK_WANTED_FLASH, true);
                 Game.Player.WantedLevel = 1;
 
-                Function.Call(Hash.CLEAR_AREA_OF_COPS, Player.Position.X, Player.Position.Y, Player.Position.Z, 1000f);
+                Function.Call(Hash.CLEAR_AREA_OF_COPS, Player.Position.X, Player.Position.Y, Player.Position.Z, 500f);
 
                 if (Player.IsDead)
                 {
@@ -302,7 +302,7 @@ namespace GangWarSandbox
                 (
                     (Game.GameTime - LastSquadSpawnTime[team] >= TIME_BETWEEN_SQUAD_SPAWNS
                     ||
-                    team.Squads.Count <= 1)
+                    team.Squads.Count == 0)
                     &&
                     CurrentGamemode.ShouldSpawnSquad(team, squadSize)
                 )
@@ -409,9 +409,9 @@ namespace GangWarSandbox
                 return;
             }
 
-            if (FirstSpawnpoint.DistanceTo(pos) > 200f)
+            if (FirstSpawnpoint.DistanceTo(pos) > 220f)
             {
-                NotificationHandler.Send("That spawnpoint is pretty far away! Due to the nature of GTA, depending on where you are the navmesh may not load. This will be fixed in version 1.2.");
+                NotificationHandler.Send("That spawnpoint is pretty far away! Due to the nature of GTA, depending on where you are the navmesh may not load. This will be fixed in version 2.0 (next update.)");
             }
         }
 

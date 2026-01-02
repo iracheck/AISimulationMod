@@ -133,15 +133,13 @@ namespace GangWarSandbox
 
                 CaptureTeam = nearbyTeam;
                 IsCapturing = true;
-                GTA.UI.Screen.ShowSubtitle("Team " + CaptureTeam.Name + " is capturing Point " + PointID, 5000); // Show capture message
+                GTA.UI.Screen.ShowSubtitle("Team " + CaptureTeam.Name + " is capturing Point " + PointID, 1000); // Show capture message
             }
 
             if (CaptureTeam == nearbyTeam)
             {
                 CaptureProgress += CAPTURE_RATE; // Increment capture progress based on number of peds and time elapsed
                 CaptureProgress = Math.Min(100f, CaptureProgress); // Ensure capture progress does not exceed 100
-                GTA.UI.Screen.ShowSubtitle("Capture Progress: " + CaptureProgress, 5000); // Show capture message
-
             }
         }
 

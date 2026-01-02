@@ -71,6 +71,9 @@ namespace GangWarSandbox.Gamemodes
         /// </summary>
         public float PedHealthMultiplier { get; set; } = 1.0f;
 
+        /// <summary>
+        /// Do Juggernauts spawn?
+        /// </summary>
         public bool HasTier4Ped = true;
 
 

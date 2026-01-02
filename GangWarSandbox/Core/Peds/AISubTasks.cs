@@ -180,13 +180,13 @@ namespace GangWarSandbox.Peds
 
             if (hasVehicle) maxStepSize = 80f;
 
-            // Convert END to a temporary road-based destination
-            Vector3 endRoad = World.GetNextPositionOnStreet(end);
+            //// Convert END to a temporary road-based destination
+            //Vector3 endRoad = World.GetNextPositionOnStreet(end);
 
-            // If the end road is a valid target, use that instead, to help with routing around buildings.
-            Vector3 navTarget = endRoad != Vector3.Zero ? endRoad : end;
+            //// If the end road is a valid target, use that instead, to help with routing around buildings.
+            //Vector3 navTarget = endRoad != Vector3.Zero ? endRoad : end;
 
-            Vector3 direction = navTarget - start;
+            Vector3 direction = end - start;
             float distance = direction.Length();
             direction.Normalize();
 
@@ -215,7 +215,7 @@ namespace GangWarSandbox.Peds
             }
 
             // If we routed to the road near the end, add final leg to the real endpoint
-            if (endRoad != Vector3.Zero)
+            if (end != Vector3.Zero)
             {
                 points.Add(end);
             }

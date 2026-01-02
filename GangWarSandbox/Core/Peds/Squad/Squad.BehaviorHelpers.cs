@@ -314,7 +314,7 @@ namespace GangWarSandbox.Peds
             if (SquadLeader.Position.DistanceTo(target) < 5f) return;
 
             bool hasVehicle = SquadVehicle != null && SquadVehicle.Exists() && SquadVehicle.IsAlive;
-            Waypoints = AISubTasks.GetIntermediateWaypoints(SpawnPos, target, hasVehicle); // set the waypoints to the target position
+            Waypoints = AISubTasks.GetIntermediateWaypoints(SquadLeader.Position, target, hasVehicle); // set the waypoints to the target position
         }
 
         public bool IsSquadInsideVehicle()

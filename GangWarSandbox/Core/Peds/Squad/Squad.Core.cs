@@ -75,9 +75,6 @@ namespace GangWarSandbox.Peds
                 return false;
             }
 
-            // If at the last waypoint, get a new target!
-            if (Waypoints.Count == 0) SetTarget(CurrentGamemode.GetTarget(this));
-
             if (JustSpawned) JustSpawned = false;
 
             if (SquadLeader == null || SquadLeader.IsDead || !SquadLeader.Exists())
@@ -86,15 +83,15 @@ namespace GangWarSandbox.Peds
             if (Waypoints != null && Waypoints.Count > 0)
             {
                 bool isCloseEnough = Waypoints.Count > 0 &&
-                    (SquadLeader.Position.DistanceTo(Waypoints[0]) < 15f) ||
-                    (SquadVehicle != null && SquadVehicle.Position.DistanceTo(Waypoints[0]) < 40f);
+                ((SquadLeader.Position.DistanceTo(Waypoints[0]) < 15f) ||
+                (SquadVehicle != null && SquadVehicle.Position.DistanceTo(Waypoints[0]) < 40f));
 
-                bool waypointSkipped = Waypoints.Count > 1 &&
-                    Waypoints[1] != null && Waypoints[1] != Vector3.Zero &&
-                    SquadLeader.Position.DistanceTo(Waypoints[1]) < 50f &&
-                    Waypoints[0].DistanceTo(SquadLeader.Position) > Waypoints[1].DistanceTo(SquadLeader.Position);
+                //bool waypointSkipped = Waypoints.Count > 1 &&
+                //    Waypoints[1] != null && Waypoints[1] != Vector3.Zero &&
+                //    SquadLeader.Position.DistanceTo(Waypoints[1]) < 50f &&
+                //    Waypoints[0].DistanceTo(SquadLeader.Position) > Waypoints[1].DistanceTo(SquadLeader.Position);
 
-                if (isCloseEnough || waypointSkipped)
+                if (isCloseEnough)
                 {
                     Waypoints.RemoveAt(0);
                     foreach (var ped in Members)

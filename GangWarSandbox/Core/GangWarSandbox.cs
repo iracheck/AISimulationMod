@@ -74,6 +74,9 @@ namespace GangWarSandbox
         // Game State
         public bool IsBattleRunning = false;
 
+        // Spawn Point Distance Check
+        Vector3 FirstSpawnpoint = Vector3.Zero;
+
         // Game Options
             // Options relating to the battle, e.g. unit counts or vehicles
 
@@ -369,30 +372,46 @@ namespace GangWarSandbox
 
         public void AddSpawnpoint(int teamIndex)
         {
+
+            Vector3 pos;
             if (!IsBattleRunning)
             {
                 if (Game.IsWaypointActive)
                 {
-                    Vector3 waypointPos = World.WaypointPosition;
-                    Teams[teamIndex].AddSpawnpoint(waypointPos);
+                    pos = World.WaypointPosition;
+                    Teams[teamIndex].AddSpawnpoint(pos);
 
-                    GTA.UI.Screen.ShowSubtitle($"Spawnpoint added for Team {teamIndex + 1} at waypoint.");
+                    NotificationHandler.Send($"Spawnpoint added for Team {teamIndex + 1} at your currently placed waypoint.");
+
                     World.RemoveWaypoint();
 
                     
                 }
                 else
                 {
-                    Vector3 charPos = Game.Player.Character.Position;
-                    charPos.Z -= 1;
-                    Teams[teamIndex].AddSpawnpoint(charPos);
-                    GTA.UI.Screen.ShowSubtitle($"Spawnpoint added for Team {teamIndex + 1} at player location.");
+                    pos = Game.Player.Character.Position;
+                    pos.Z -= 1;
+                    Teams[teamIndex].AddSpawnpoint(pos);
+
+                    NotificationHandler.Send($"Spawnpoint added for Team {teamIndex + 1} at your character's position.");
 
                 }
             }
             else
             {
-                GTA.UI.Screen.ShowSubtitle("Stop the battle to create a new spawnpoint.");
+                NotificationHandler.Send($"You must stop the battle to create a new spawnpoint.");
+                return;
+            }
+
+            if (FirstSpawnpoint == Vector3.Zero)
+            {
+                FirstSpawnpoint = pos;
+                return;
+            }
+
+            if (FirstSpawnpoint.DistanceTo(pos) > 200f)
+            {
+                NotificationHandler.Send("That spawnpoint is pretty far away! Due to the nature of GTA, depending on where you are the navmesh may not load. This will be fixed in version 1.2.");
             }
         }
 
@@ -400,9 +419,11 @@ namespace GangWarSandbox
         {
             if (IsBattleRunning)
             {
-                GTA.UI.Screen.ShowSubtitle("Stop the battle to remove spawnpoints.");
+                NotificationHandler.Send($"You must stop the battle to delete points.");
                 return;
             }
+
+            FirstSpawnpoint = Vector3.Zero;
 
             foreach (var team in Teams)
             {
@@ -485,7 +506,7 @@ namespace GangWarSandbox
                     }
                     catch (Exception ex)
                     {
-                        GTA.UI.Screen.ShowSubtitle($"Dead ped cleanup error: {ex.Message}");
+                        Logger.LogError("Dead ped cleanup error: " + ped.ToString());
                     }
                 }
 

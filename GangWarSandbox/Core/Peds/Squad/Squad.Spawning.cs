@@ -202,7 +202,7 @@ namespace GangWarSandbox.Peds
         }
 
 
-        public Vector3 FindRandomPositionAroundPlayer(int radius = 200, int minRadius = 100)
+        public Vector3 FindRandomPositionAroundPlayer(int radius = 200, int minRadius = 20)
         {
             Ped player = Game.Player.Character;
             Vector3 playerPos = player.Position;
@@ -298,8 +298,8 @@ namespace GangWarSandbox.Peds
                 RaycastResult result = World.Raycast(newSpawnPoint, GameplayCamera.Position, IntersectFlags.Map);
                 if (!result.DidHit)
                 {
-                    minVehicleDistance += 70f;
-                    minInfantryDistance += 40f;
+                    minVehicleDistance += 100f;
+                    minInfantryDistance += 60f;
                 }
 
                 if (vehicleForwardBias) minVehicleDistance += Game.Player.Character.CurrentVehicle.Speed;

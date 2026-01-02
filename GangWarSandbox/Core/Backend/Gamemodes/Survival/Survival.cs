@@ -233,10 +233,18 @@ namespace GangWarSandbox.Gamemodes
 
         public override bool ShouldGetNewTarget(Squad s)
         {
-            if (s.Waypoints.Count == 0) return true;
+            if (s.Waypoints.Count != 0) return false;
+            else
+            {
+                float distToPlayer = s.SquadLeader.Position.DistanceTo(Game.Player.Character.Position);
 
-            if (s.Waypoints.Last().DistanceTo(Game.Player.Character.Position) > 7.5f) return true;
-            else return false;
+                if (distToPlayer >= 20f)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         public override Vector3 GetTarget(Squad s)

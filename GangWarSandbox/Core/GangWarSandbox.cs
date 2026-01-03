@@ -161,7 +161,11 @@ namespace GangWarSandbox
 
             DrawMarkers();
 
-            if (IsBattleRunning)
+            if (!IsBattleRunning)
+            {
+                CleanupAll();
+            }
+            else if (IsBattleRunning)
             {
                 int GameTime = Game.GameTime;
 
@@ -230,7 +234,7 @@ namespace GangWarSandbox
             if (DEBUG && sw != null)
             {
                 sw.Stop();
-                if (sw.ElapsedMilliseconds > 5)Logger.LogDebug($"Tick took {sw.ElapsedMilliseconds} ms");
+                if (sw.ElapsedMilliseconds > 5) Logger.LogDebug($"Tick took {sw.ElapsedMilliseconds} ms");
             }
         }
 

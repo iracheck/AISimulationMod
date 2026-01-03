@@ -297,10 +297,10 @@ namespace GangWarSandbox.Peds
 
                 // Ensure that they are not too close to the player. However, if the player cant see them, they can spawn a little closer
 
-                float minVehicleDistance = 70f;
-                float minInfantryDistance = 40f;
+                float minVehicleDistance = 100f;
+                float minInfantryDistance = 60f;
 
-                RaycastResult result = World.Raycast(newSpawnPoint, GameplayCamera.Position, IntersectFlags.Map);
+                RaycastResult result = World.Raycast(newSpawnPoint, Game.Player.Character.Position, IntersectFlags.Map);
                 if (!result.DidHit)
                 {
                     minVehicleDistance += 50f;

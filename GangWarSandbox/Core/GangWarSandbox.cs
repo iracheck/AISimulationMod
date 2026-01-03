@@ -409,7 +409,7 @@ namespace GangWarSandbox
                 return;
             }
 
-            if (FirstSpawnpoint.DistanceTo(pos) > 220f)
+            if (FirstSpawnpoint.DistanceTo(pos) > 300f)
             {
                 NotificationHandler.Send("That spawnpoint is pretty far away! Due to the nature of GTA, depending on where you are the navmesh may not load. This will be fixed in version 2.0 (next update.)");
             }

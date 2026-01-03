@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace GangWarSandbox.Gamemodes
 {
@@ -33,9 +34,11 @@ namespace GangWarSandbox.Gamemodes
 
             if (Game.Player.Character.IsInjured && !isRespawning)
             {
-
                 isRespawning = true;
                 deathTime = Game.GameTime;
+                Vector3 spawn = Mod.Teams[0].SpawnPoints[0];
+
+                Screen.FadeOut(250);
 
                 // make sure they dont ACTUALLY die
                 Game.Player.Character.Health = 200;
@@ -44,11 +47,10 @@ namespace GangWarSandbox.Gamemodes
                 Function.Call(Hash.IGNORE_NEXT_RESTART, true);
                 Function.Call(Hash.FORCE_GAME_STATE_PLAYING);
 
-                Game.Player.CanControlCharacter = false;
-
                 Function.Call(Hash.SET_PED_TO_RAGDOLL_WITH_FALL, Game.Player.Handle, 1500, 2000, 0, Game.Player.Character.ForwardVector.X, 0f, 0f, 1f, 0f, 0f, 0f, 0f, 0f, 0f);
+                Function.Call(Hash.NETWORK_RESURRECT_LOCAL_PLAYER, spawn.X, spawn.Y, spawn.Z, 90f, false, false, false, false, false);
 
-                Screen.FadeOut(1000);
+                Game.Player.CanControlCharacter = false;
             }
 
             if (isRespawning && Game.GameTime - TIME_TO_WAIT_AFTER_DEATH > deathTime)
@@ -58,9 +60,7 @@ namespace GangWarSandbox.Gamemodes
 
                 Game.Player.CanControlCharacter = true;
 
-                Vector3 spawn = Mod.Teams[0].SpawnPoints[0];
 
-                Function.Call(Hash.NETWORK_RESURRECT_LOCAL_PLAYER, spawn.X, spawn.Y, spawn.Z, 90f, false, false, false, false, false);
                 Game.Player.Character.Health = 200;
                 Game.Player.IsInvincible = false;
 

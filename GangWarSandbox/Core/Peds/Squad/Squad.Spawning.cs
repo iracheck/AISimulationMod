@@ -488,8 +488,8 @@ namespace GangWarSandbox.Peds
 
             if (tier == 1)
             {
-                ped.Health = team.BaseHealth;
-                ped.MaxHealth = team.BaseHealth;
+                ped.Health = (int)(team.BaseHealth * 0.8f);
+                ped.MaxHealth = (int)(team.BaseHealth * 0.8f);
                 baseAccuracy = 3;
                 blip.Sprite = (BlipSprite)1;
                 blip.Scale = 0.4f;
@@ -497,8 +497,8 @@ namespace GangWarSandbox.Peds
             }
             else if (tier == 2)
             {
-                ped.Health = (int)(team.BaseHealth * 1.2f) ;
-                ped.MaxHealth = (int)(team.BaseHealth * 1.2f);
+                ped.Health = (int)(team.BaseHealth) ;
+                ped.MaxHealth = (int)(team.BaseHealth);
                 baseAccuracy = 12;
                 blip.Sprite = (BlipSprite)1;
                 blip.Scale = 0.4f;

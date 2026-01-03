@@ -44,6 +44,8 @@ namespace GangWarSandbox.Gamemodes
                 Function.Call(Hash.IGNORE_NEXT_RESTART, true);
                 Function.Call(Hash.FORCE_GAME_STATE_PLAYING);
 
+                Game.Player.CanControlCharacter = false;
+
                 Function.Call(Hash.SET_PED_TO_RAGDOLL_WITH_FALL, Game.Player.Handle, 1500, 2000, 0, Game.Player.Character.ForwardVector.X, 0f, 0f, 1f, 0f, 0f, 0f, 0f, 0f, 0f);
 
                 Screen.FadeOut(1000);
@@ -52,6 +54,9 @@ namespace GangWarSandbox.Gamemodes
             if (isRespawning && Game.GameTime - TIME_TO_WAIT_AFTER_DEATH > deathTime)
             {
                 isRespawning = false;
+                deathTime = 0;
+
+                Game.Player.CanControlCharacter = true;
 
                 Vector3 spawn = Mod.Teams[0].SpawnPoints[0];
 
@@ -59,8 +64,7 @@ namespace GangWarSandbox.Gamemodes
                 Game.Player.Character.Health = 200;
                 Game.Player.IsInvincible = false;
 
-                Screen.FadeIn(200);
-
+                Screen.FadeIn(800);
             }
         }
 

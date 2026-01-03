@@ -190,11 +190,6 @@ namespace GangWarSandbox.Gamemodes
             return new List<NativeMenu>(){gamemodeMenu};
         }
 
-        public override void OnTick()
-        {
-
-        }
-
         public override void OnTickGameRunning()
         {
             TimeElapsed = Game.GameTime - TimeStart;

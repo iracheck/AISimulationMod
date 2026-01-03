@@ -125,7 +125,7 @@ namespace GangWarSandbox
             }
             else if (DEBUG)
             {
-                NotificationHandler.Send("GangWarSandbox loaded in ~r~debug mode~w~.");
+                NotificationHandler.Send("GangWarSandbox loaded in ~r~debug mode~w~. Please be aware that there may be reduced performance in debug mode.");
             }
             else
             {
@@ -151,7 +151,9 @@ namespace GangWarSandbox
 
         private void OnTick(object sender, EventArgs e)
         {
-            Stopwatch sw = Stopwatch.StartNew();
+            Stopwatch sw = null;
+
+            if (DEBUG) sw = Stopwatch.StartNew();
 
             BattleSetupUI.MenuPool.Process();
 
@@ -159,10 +161,10 @@ namespace GangWarSandbox
 
             DrawMarkers();
 
-            int GameTime = Game.GameTime;
-
             if (IsBattleRunning)
             {
+                int GameTime = Game.GameTime;
+
                 // Essentially "fakes" that the player is wanted while battles are occuring. This allows the player to use weapons inside their safehouses AND prevents the player from swapping targets.
                 Game.Player.DispatchsCops = false; // disable cop dispatches
                 Function.Call(Hash.HIDE_HUD_COMPONENT_THIS_FRAME, 1);
@@ -225,11 +227,10 @@ namespace GangWarSandbox
                 }
             }
 
-            sw.Stop();
-
-            if (DEBUG && sw.ElapsedMilliseconds > 5)
+            if (DEBUG && sw != null)
             {
-                Logger.LogDebug($"Tick took {sw.ElapsedMilliseconds} ms");
+                sw.Stop();
+                if (sw.ElapsedMilliseconds > 5)Logger.LogDebug($"Tick took {sw.ElapsedMilliseconds} ms");
             }
         }
 
@@ -411,7 +412,7 @@ namespace GangWarSandbox
 
             if (FirstSpawnpoint.DistanceTo(pos) > 300f)
             {
-                NotificationHandler.Send("That spawnpoint is pretty far away! Due to the nature of GTA, depending on where you are the navmesh may not load. This will be fixed in version 2.0 (next update.)");
+                NotificationHandler.Send("That spawnpoint is pretty far away! Due to the nature of GTA, depending on where you are the navmesh may not load, and thus infantry squads will be stuck. This will be fixed in version 2.0 (next update.)");
             }
         }
 
@@ -638,7 +639,7 @@ namespace GangWarSandbox
                 {
                     if (team?.Squads == null) continue;
 
-                    foreach (var squad in team.Squads)
+                    foreach (var squad in team.GetAllSquads())
                     {
                         if (squad == null || squad.Waypoints == null || squad.Waypoints.Count == 0)
                             continue;
@@ -646,17 +647,22 @@ namespace GangWarSandbox
                         if (squad.SquadLeader == null || !squad.SquadLeader.Exists())
                             continue;
 
-                        Vector3 squadLeaderPos = squad.SquadLeader.Position;
-                        Vector3 targetPos = squad.Waypoints[0];
+                        for (int i = 0; i < squad.Waypoints.Count; i++)
+                        {
+                            Vector3 pos1 = i == 0 ? squad.SquadLeader.Position : squad.Waypoints[i - 1];
+                            Vector3 pos2 = squad.Waypoints[i];
+                            Color color = i == 0 ? Color.LimeGreen : Color.Red;
 
-                        if (squad.SquadLeader.IsInVehicle())
-                        {
-                            World.DrawLine(squad.SquadLeader.CurrentVehicle.Position, targetPos, Color.LimeGreen);
+                            if (squad.SquadLeader.IsInVehicle())
+                                {
+                                    World.DrawLine(pos1 + new Vector3(0, 0, 10), pos2, Color.LimeGreen);
+                                }
+                            else
+                                {
+                                    World.DrawLine(pos1, pos2, color);
+                                }
                         }
-                        else
-                        {
-                            World.DrawLine(squadLeaderPos, targetPos, Color.LimeGreen);
-                        }
+
                     }
                 }
             }

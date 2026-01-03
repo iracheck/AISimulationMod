@@ -655,7 +655,7 @@ namespace GangWarSandbox
 
                             if (squad.SquadLeader.IsInVehicle())
                                 {
-                                    World.DrawLine(pos1 + new Vector3(0, 0, 10), pos2, Color.LimeGreen);
+                                    World.DrawLine(pos1 + new Vector3(0, 0, 3), pos2, Color.LimeGreen);
                                 }
                             else
                                 {

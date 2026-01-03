@@ -108,6 +108,7 @@ namespace GangWarSandbox.Gamemodes
 
         public override void OnPlayerDeath(int gameTime)
         {
+            Mod.IsBattleRunning = false; // double check
             Mod.StopBattle();
         }
 
@@ -244,7 +245,7 @@ namespace GangWarSandbox.Gamemodes
         {
             if (s.Waypoints.Count != 0)
             {
-                if (s.Waypoints.Last().DistanceTo(Game.Player.Character.Position) > 20f) return true;
+                if (s.Waypoints.Last().DistanceTo(Game.Player.Character.Position) > 10f) return true;
                 else return false;
             }
             else

@@ -180,8 +180,6 @@ namespace GangWarSandbox.Peds
             CurrentGamemode.OnVehicleSpawn(SquadVehicle);
             SquadVehicle.AddBlip();
 
-            if (SquadVehicle.AttachedBlip == null) SquadVehicle.AddBlip(); // try again, because of edge cases
-
             if (SquadVehicle.AttachedBlip == null) return;
 
             SquadVehicle.AttachedBlip.Sprite = BlipSprite.GangVehiclePolice;

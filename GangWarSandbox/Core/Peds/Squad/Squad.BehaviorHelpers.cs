@@ -121,14 +121,14 @@ namespace GangWarSandbox.Peds
                     ped.Task.VehicleChase(nearbyEnemy);
                     PedAssignments[ped] = PedAssignment.VehicleChase;
                 }
-                else if (distanceToEnemy < 60f)
+                else if (distanceToEnemy < 80f)
                 {
                     if (hasLOS)
                     {
                         ped.Task.VehicleShootAtPed(nearbyEnemy);
                         PedAssignments[ped] = PedAssignment.VehicleChase;
                     }
-                    else if (distanceToEnemy < 20f && canExitVehicle)
+                    else if (distanceToEnemy < 45f && canExitVehicle)
                     {
                         ped.Task.LeaveVehicle(LeaveVehicleFlags.LeaveDoorOpen);
                         PedAssignments[ped] = PedAssignment.ExitVehicle;

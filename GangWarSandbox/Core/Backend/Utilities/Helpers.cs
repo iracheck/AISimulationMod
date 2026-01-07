@@ -1,5 +1,6 @@
 ﻿using GTA;
 using GTA.Math;
+using GTA.Native;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,14 +18,14 @@ namespace GangWarSandbox
             return array != null && array.Length > 0 ? array[rand.Next(array.Length)] : null;
         }
 
-        public static int Clamp(int num, int max = 0, int min = 100)
+        public static int Clamp(int num, int max = 100, int min = 0)
         {
             if (num > max) return max;
             if (num < min) return min;
             else return num;
         }
 
-        public static float Clamp(float num, float max = 0, float min = 100)
+        public static float Clamp(float num, float max = 100.0f, float min = 0.0f)
         {
             if (num > max) return max;
             if (num < min) return min;

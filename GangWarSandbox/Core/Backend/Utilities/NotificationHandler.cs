@@ -13,5 +13,10 @@ namespace GangWarSandbox.Utilities
             string prefixedMessage = "~y~[GangWarSandbox " + GWSMeta.Version + "] ~w~" + message;
             GTA.UI.Notification.Show(prefixedMessage, false);
         }
+
+        public static void SendFromLester(string message)
+        {
+            GTA.UI.Notification.Show(GTA.UI.NotificationIcon.Lester, "Lester Crest", "", message);
+        }
     }
 }

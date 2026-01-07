@@ -17,7 +17,7 @@ namespace GangWarSandbox.Gamemodes
         // e.g. If a team has a squad size of 3, and a multiplier of 15, they will have 45 reservists
         int numReinforcementsMultiplier = 15; 
 
-        public SkirmishGamemode() : base("Skirmish", "A quick battle between factions, the first to wipe out the others' unit reserve wins. >>Incomplete gamemode<<", 4)
+        public SkirmishGamemode() : base("Skirmish", "A non-infinite battle between up to four teams. The first team to exhaust all others reinforcements wins!", 4)
         {
             
         }

@@ -4,6 +4,7 @@ using GTA;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -14,22 +15,24 @@ namespace GangWarSandbox.Core
 {
     static partial class ConfigParser
     {
-        public static void LoadConfiguration()
+        public static void LoadScores()
         {
             string[] validKeys = { "MenuKeybind", "SquadUpdateFreq", "VehicleUpdateFreq", "MaxCorpses", "MaxSquadlessVehicles", "DebugMode", "AIAttackRadius" };
             Logger.Parser("Loading mod config file...");
             try
             {
                 string path = ModFiles.CONFIG_PATH;
-
+                if (!File.Exists(path))
+                {
+                    SendWarningDoesNotExist();
+                    return;
+                }
                 var lines = File.ReadLines(path);
 
                 if (lines == null || lines.Count() == 0)
                 {
                     SendWarningDoesNotExist();
-                    return;
                 }
-
 
                 foreach (var line in lines)
                 {
@@ -80,12 +83,6 @@ namespace GangWarSandbox.Core
             {
                 Logger.ParserError("Failed to parse mod configuration file. Error: " + e.ToString());
             }
-        }
-
-        public static void SendWarningDoesNotExist()
-        {
-            NotificationHandler.Send("~r~Warning:~w~ The Configuration file could not be found, or does not exist. Using default values.");
-            Logger.LogDebug("Configuration.ini does not exist. Please redownload from the mod page.");
         }
 
     }

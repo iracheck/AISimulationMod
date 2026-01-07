@@ -17,6 +17,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.ComponentModel;
 using GangWarSandbox.Core.StrategyAI;
 using GangWarSandbox.Core;
+using GangWarSandbox.Utilities;
 
 namespace GangWarSandbox.Peds
 {
@@ -85,6 +86,7 @@ namespace GangWarSandbox.Peds
                     if (Members[i].AttachedBlip != null && Members[i].AttachedBlip.Exists())
                         Members[i].AttachedBlip.Delete();
 
+                    PedTargetCache.Remove(Members[i]); // remove them from the cache, to free up some memory
                     Members.RemoveAt(i);
                 }
             }
@@ -147,7 +149,7 @@ namespace GangWarSandbox.Peds
             return ped;
         }
 
-        public void SpawnVehicle(VehicleSet.Type type, Vector3 position)
+        public void SpawnVehicle(VehicleSet.Type type, Vector3 position, bool shouldFacePlayer = false)
         {
             if (Owner.TeamVehicles == null) return;
 
@@ -156,15 +158,31 @@ namespace GangWarSandbox.Peds
 
             if (!model.IsValid || !model.IsVehicle) return;
 
-            SquadVehicle = World.CreateVehicle(model, position);
+            float spawnHeading = 0;
+
+            if (shouldFacePlayer)
+            {
+                Vector3 toPlayer = (Game.Player.Character.Position - position).Normalized;
+                spawnHeading = (float)(Math.Atan2(toPlayer.Y, toPlayer.X) * 180.0 / Math.PI) - 90;
+
+                if (Game.Player.Character.IsInVehicle() && Game.Player.Character.CurrentVehicle.Velocity.Length() >= 50) spawnHeading = (spawnHeading + 180f) % 360f;
+
+                if (spawnHeading < 0) spawnHeading += 360f;
+            }
+
+
+
+            SquadVehicle = World.CreateVehicle(model, position, spawnHeading);
 
             if (SquadVehicle == null) return;
+
 
             CurrentGamemode.OnVehicleSpawn(SquadVehicle);
             SquadVehicle.AddBlip();
 
             if (SquadVehicle.AttachedBlip == null) return;
 
+            SquadVehicle.AttachedBlip.Sprite = BlipSprite.GangVehiclePolice;
             GetCorrectBlipForVehicle(type, SquadVehicle);
 
             SquadVehicle.AttachedBlip.Name = $"Team {Owner.Name} Vehicle";
@@ -176,53 +194,63 @@ namespace GangWarSandbox.Peds
         {
             if (type == VehicleSet.Type.Vehicle && (vehicle.IsBicycle || vehicle.IsMotorcycle))
                 vehicle.AttachedBlip.Sprite = BlipSprite.Motorcycle;
-            else if (type == VehicleSet.Type.Vehicle)
-                vehicle.AttachedBlip.Sprite = BlipSprite.GangVehiclePolice;
             else if (type == VehicleSet.Type.WeaponizedVehicle)
                 vehicle.AttachedBlip.Sprite = BlipSprite.TechnicalAqua;
             else if (type == VehicleSet.Type.Helicopter)
                 vehicle.AttachedBlip.Sprite = BlipSprite.HelicopterAnimated;
         }
 
-        public Vector3 FindRandomPositionAroundPlayer(int radius = 200, int minRadius = 100)
+        private bool IsValidZ(Vector3 spawn, Vector3 playerPos, bool vehicle)
+        {
+            float tolerance = vehicle ? 20f : 40f;
+            return spawn.Z >= playerPos.Z - tolerance && spawn.Z <= playerPos.Z + tolerance;
+        }
+
+
+        public Vector3 FindRandomPositionAroundPlayer(int radius = 150, int minRadius = 20)
         {
             Ped player = Game.Player.Character;
             Vector3 playerPos = player.Position;
             Vector3 newSpawnPoint = playerPos;
 
             int attempts = 0;
-            int MAX_ATTEMPTS = 20;
+            int MAX_ATTEMPTS = 25;
 
             bool playerInVehicle = player.IsInVehicle();
+            bool isVehicleSquad = IsVehicleSquad();
 
             if (radius < minRadius) radius = minRadius;
 
             Vector3 forward = player.ForwardVector.Normalized;
 
-            while (true)
+            while (attempts <= MAX_ATTEMPTS)
             {
                 attempts++;
 
-                float distance = (float)(minRadius + rand.NextDouble() * (radius - minRadius));
+                float distance = (float)(minRadius + Rand.NextDouble() * (radius - minRadius));
                 float angle;
+
+                // only for vehicles
+                bool vehicleForwardBias = false;
 
                 // Forward bias for vehicle mode
                 if (playerInVehicle)
                 {
-                    if (rand.NextDouble() < 0.8)
+                    if (Rand.NextDouble() < 0.85)
                     {
-                        float cone = 25f * (float)Math.PI / 180f;
+                        vehicleForwardBias = true;
+                        float cone = 20f * (float)Math.PI / 180f;
                         float forwardAngle = (float)Math.Atan2(forward.Y, forward.X);
-                        angle = forwardAngle + (float)(rand.NextDouble() * cone - cone / 2f);
+                        angle = forwardAngle + (float)(Rand.NextDouble() * cone - cone / 2f);
                     }
                     else
                     {
-                        angle = (float)(rand.NextDouble() * Math.PI * 2);
+                        angle = (float)(Rand.NextDouble() * Math.PI * 2);
                     }
                 }
                 else
                 {
-                    angle = (float)(rand.NextDouble() * Math.PI * 2);
+                    angle = (float)(Rand.NextDouble() * Math.PI * 2);
                 }
 
                 Vector3 offset = new Vector3(
@@ -258,33 +286,50 @@ namespace GangWarSandbox.Peds
                 }
 
                 // Avoid crowded areas
-                bool noEntitiesNearby = World.GetNearbyEntities(newSpawnPoint, 5f).Length == 0;
-                bool noPedsNearby = World.GetNearbyPeds(newSpawnPoint, 5f).Length == 0;
+                bool noEntitiesNearby = World.GetNearbyEntities(newSpawnPoint, 3f).Length == 0;
+                bool noPedsNearby = World.GetNearbyPeds(newSpawnPoint, 3f).Length == 0;
                 if (!(noEntitiesNearby && noPedsNearby))
                 {
-                    if (attempts >= MAX_ATTEMPTS) return Vector3.Zero;
                     continue;
                 }
 
-                // Z-level check
-                if (newSpawnPoint.Z < player.Position.Z - 5f || newSpawnPoint.Z > player.Position.Z + 5f)
+
+
+                // Ensure that they are not too close to the player. However, if the player cant see them, they can spawn a little closer
+
+                float minVehicleDistance = 100f;
+                float minInfantryDistance = 60f;
+
+                RaycastResult result = World.Raycast(newSpawnPoint, Game.Player.Character.Position, IntersectFlags.Map);
+                if (!result.DidHit)
                 {
-                    if (attempts >= MAX_ATTEMPTS - 3)
-                    {
-                        if (attempts >= MAX_ATTEMPTS) return Vector3.Zero;
-                        if (newSpawnPoint.Z < player.Position.Z - 50f || newSpawnPoint.Z > player.Position.Z + 50f)
-                        {
-                            continue;
-                        }
-                    }
-                    else continue;
+                    minVehicleDistance += 50f;
+                    minInfantryDistance += 40f;
                 }
 
-                if (newSpawnPoint.DistanceTo2D(playerPos) < (IsVehicleSquad() ? 120f : 70f))
+                if (vehicleForwardBias) minVehicleDistance += Game.Player.Character.CurrentVehicle.Speed;
+
+                float distToPlayer = newSpawnPoint.DistanceTo2D(playerPos);
+                if (distToPlayer < (isVehicleSquad ? minVehicleDistance : minInfantryDistance)
+                    || distToPlayer > (isVehicleSquad ? minVehicleDistance : minInfantryDistance) * 2)
                 {
-                    if (attempts >= MAX_ATTEMPTS) return Vector3.Zero;
                     continue;
                 }
+
+                bool zValid = false;
+
+                // Make sure they spawn at an appropriate Z-level. Try to get z-levels that are the same as the players first, but if none of those succeed, fallback to reasonable (20-40m difference) levels
+                if (newSpawnPoint.Z < player.Position.Z - 10f || newSpawnPoint.Z > player.Position.Z + 10f)
+                {
+                    zValid = true;
+                }
+                else if (attempts >= MAX_ATTEMPTS - 5 && IsValidZ(newSpawnPoint, playerPos, isVehicleSquad) )
+                {
+                    zValid = true;
+                }
+
+                if (zValid) continue;
+
 
                 // Check if under the map
                 Vector3 rayStart = newSpawnPoint + new Vector3(0, 0, 100f);
@@ -299,6 +344,8 @@ namespace GangWarSandbox.Peds
 
                 return newSpawnPoint;
             }
+
+            return new Vector3(0, 0, 0);
         }
 
 
@@ -308,6 +355,7 @@ namespace GangWarSandbox.Peds
         {
             Vector3 newSpawnPoint = spawnpoint;
             int radius = 10;
+            if (IsVehicleSquad()) radius = 5;
 
             bool pointInvalid = true;
             int attempts = 0;
@@ -317,8 +365,8 @@ namespace GangWarSandbox.Peds
                 newSpawnPoint = spawnpoint;
                 attempts++;
 
-                Vector3 randXOffset = new Vector3(rand.Next(-radius, radius), 0, 0);
-                Vector3 randYOffset = new Vector3(0, rand.Next(-radius, radius), 0);
+                Vector3 randXOffset = new Vector3(Rand.Next(-radius, radius), 0, 0);
+                Vector3 randYOffset = new Vector3(0, Rand.Next(-radius, radius), 0);
 
                 newSpawnPoint += randXOffset + randYOffset;
 
@@ -397,9 +445,9 @@ namespace GangWarSandbox.Peds
             // Tier 4 peds only spawn when there is no tier 4 living tier 4 ped of that team AND when the player is on an opposing team
             bool playerHasNoTeam = ModData.PlayerTeam == -1 || ModData.PlayerTeam == -2 || ModData.PlayerTeam < 0 || ModData.PlayerTeam >= ModData.Teams.Count || ModData.Teams[ModData.PlayerTeam] == null;
 
-            bool shouldSpawnTier4 = (team.Tier4Ped == null || !team.Tier4Ped.Exists() || team.Tier4Ped.IsDead) && !playerHasNoTeam;
+            bool shouldSpawnTier4 = CurrentGamemode.HasTier4Ped && (team.Tier4Ped == null || !team.Tier4Ped.Exists() || team.Tier4Ped.IsDead) && !playerHasNoTeam;
 
-            int rnum = rand.Next(0, 100);
+            int rnum = Rand.Next(0, 100);
 
             rnum = (int)(rnum * team.TierUpgradeMultiplier);
 
@@ -408,7 +456,7 @@ namespace GangWarSandbox.Peds
             else if (rnum >= 60) tier = 2;
             else tier = 1;
 
-            var model = new Model(team.Models[rand.Next(team.Models.Length)]);
+            var model = new Model(team.Models[Rand.Next(team.Models.Length)]);
             if (tier == 4 && !string.IsNullOrEmpty(team.Faction.Tier4Model)) model = new Model(team.Faction.Tier4Model);
 
             if (!model.IsValid || !model.IsInCdImage) return null;
@@ -440,29 +488,29 @@ namespace GangWarSandbox.Peds
 
             if (tier == 1)
             {
-                ped.Health = team.BaseHealth;
-                ped.MaxHealth = team.BaseHealth;
-                baseAccuracy = 7;
-                blip.Sprite = BlipSprite.Enemy;
+                ped.Health = (int)(team.BaseHealth * 0.8f);
+                ped.MaxHealth = (int)(team.BaseHealth * 0.8f);
+                baseAccuracy = 3;
+                blip.Sprite = (BlipSprite)1;
                 blip.Scale = 0.4f;
                 pedValue = 40;
             }
             else if (tier == 2)
             {
-                ped.Health = (int)(team.BaseHealth * 1.2f) ;
-                ped.MaxHealth = (int)(team.BaseHealth * 1.2f);
-                baseAccuracy = 15;
-                blip.Sprite = BlipSprite.Enemy;
+                ped.Health = (int)(team.BaseHealth) ;
+                ped.MaxHealth = (int)(team.BaseHealth);
+                baseAccuracy = 12;
+                blip.Sprite = (BlipSprite)1;
                 blip.Scale = 0.4f;
                 pedValue = 100;
             }
             else if (tier == 3)
             {
-                ped.Health = (int)(team.BaseHealth * 1.5f);
-                ped.MaxHealth = (int)(team.BaseHealth * 1.5f);
-                baseAccuracy = 30;
-                blip.Sprite = BlipSprite.Enemy;
-                blip.Scale = 0.6f;
+                ped.Health = (int)(team.BaseHealth * 1.3f);
+                ped.MaxHealth = (int)(team.BaseHealth * 1.3f);
+                baseAccuracy = 25;
+                blip.Sprite = (BlipSprite)1;
+                blip.Scale = 0.4f;
                 pedValue = 280;
 
                 ped.CanSufferCriticalHits = false;
@@ -474,7 +522,7 @@ namespace GangWarSandbox.Peds
             {
                 ped.Health = (int)(team.BaseHealth * 1.8f);
                 ped.MaxHealth = (int)(team.BaseHealth * 1.8f);
-                baseAccuracy = 75;
+                baseAccuracy = 32;
 
                 blip.Sprite = BlipSprite.Juggernaut;
                 pedValue = 675;
@@ -532,7 +580,7 @@ namespace GangWarSandbox.Peds
             ped.DropsEquippedWeaponOnDeath = false;
 
             Members.Add(ped);
-            PedAssignments[ped] = PedAssignment.None;
+            PedAssignments[ped] = PedAssignment.Idle;
 
             // Combat Flags
             Function.Call(Hash.SET_PED_COMBAT_ATTRIBUTES, ped, 0, true);  // Always fight
@@ -583,7 +631,7 @@ namespace GangWarSandbox.Peds
             ped.VehicleDrivingFlags = VehicleDrivingFlags.UseShortCutLinks | VehicleDrivingFlags.AllowGoingWrongWay;
 
             PedTargetCache[ped] = (null, 0);
-            PedAssignments[ped] = PedAssignment.None;
+            PedAssignments[ped] = PedAssignment.Idle;
 
             squadValue += pedValue;
             return ped;

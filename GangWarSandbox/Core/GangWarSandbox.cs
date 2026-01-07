@@ -37,7 +37,7 @@ namespace GangWarSandbox
         private const int TIME_BETWEEN_SQUAD_SPAWNS = 3000; // Time in milliseconds between squad spawns for each team
 
         // Teams
-        public int PlayerTeam = -1;
+        public int PlayerTeam = 0; // -1 is 
         public List<Team> Teams = new List<Team>();
         public Dictionary<string, Faction> Factions = new Dictionary<string, Faction>();
         public Dictionary<Team, float> LastSquadSpawnTime = new Dictionary<Team, float>(); // Track last spawn time for each team to prevent spamming or crowding
@@ -74,6 +74,9 @@ namespace GangWarSandbox
         // Game State
         public bool IsBattleRunning = false;
 
+        // Spawn Point Distance Check
+        Vector3 FirstSpawnpoint = Vector3.Zero;
+
         // Game Options
             // Options relating to the battle, e.g. unit counts or vehicles
 
@@ -81,7 +84,7 @@ namespace GangWarSandbox
         public bool UseWeaponizedVehicles = false;
         public bool UseHelicopters = false;
 
-        public Gamemode CurrentGamemode = new InfiniteBattleGamemode();
+        public Gamemode CurrentGamemode;
         public List<Gamemode> AvaliableGamemodes = new List<Gamemode>
         {
             new InfiniteBattleGamemode(),
@@ -96,11 +99,13 @@ namespace GangWarSandbox
         bool PlayerDied = false;
         int TimeOfDeath;
 
-
         public GangWarSandbox()
         {
             Instance = this;
-            
+            CurrentGamemode = AvaliableGamemodes[0];
+
+            Logger.Log("GangWarSandbox loaded using build " + GWSMeta.Version + ", built on date: " + GWSMeta.BuildDate.ToString() + ".\n", "META");
+
             // Ensure valid directories exist on startup
             ModFiles.EnsureDirectoriesExist();
 
@@ -108,14 +113,19 @@ namespace GangWarSandbox
             Factions = ConfigParser.LoadFactions();
             ConfigParser.LoadConfiguration();
 
+
             if (Factions.Count == 0)
             {
-                NotificationHandler.Send("~r~Warning: ~w~GangWarSandbox requires at least one faction in order to load. Please create one, or use one of the default ones provided.");
+                NotificationHandler.Send("~r~Warning: ~w~GangWarSandbox requires at least one faction in order to load. Please create one, or use one of the default ones provided (redownload the mod if necessary).");
                 return;
             }
             else if (Factions.Count == 1)
             {
-                NotificationHandler.Send("~r~Warning: ~w~GangWarSandbox works best with more than one faction. While you can play, it's suggested to add more.");
+                NotificationHandler.Send("~r~Warning: ~w~GangWarSandbox works best with more than one faction. While you can play with all teams being the same, it's more fun to add more. To add factions, visit the \"Factions\" subfolder in the mod files.");
+            }
+            else if (DEBUG)
+            {
+                NotificationHandler.Send("GangWarSandbox loaded in ~r~debug mode~w~. Please be aware that there may be reduced performance in debug mode.");
             }
             else
             {
@@ -141,7 +151,9 @@ namespace GangWarSandbox
 
         private void OnTick(object sender, EventArgs e)
         {
-            Stopwatch sw = Stopwatch.StartNew();
+            Stopwatch sw = null;
+
+            if (DEBUG) sw = Stopwatch.StartNew();
 
             BattleSetupUI.MenuPool.Process();
 
@@ -149,38 +161,26 @@ namespace GangWarSandbox
 
             DrawMarkers();
 
-            int GameTime = Game.GameTime;
-
-            if (IsBattleRunning)
+            if (!IsBattleRunning)
             {
-                if (PlayerTeam != -1 && PlayerTeam != -2)
+                CleanupAll();
+            }
+            else if (IsBattleRunning)
+            {
+                int GameTime = Game.GameTime;
+
+                // Essentially "fakes" that the player is wanted while battles are occuring. This allows the player to use weapons inside their safehouses AND prevents the player from swapping targets.
+                Game.Player.DispatchsCops = false; // disable cop dispatches
+                Function.Call(Hash.HIDE_HUD_COMPONENT_THIS_FRAME, 1);
+                Function.Call(Hash.SET_BLOCK_WANTED_FLASH, true);
+                Game.Player.WantedLevel = 1;
+
+                Function.Call(Hash.CLEAR_AREA_OF_COPS, Player.Position.X, Player.Position.Y, Player.Position.Z, 500f);
+
+                if (Player.IsDead)
                 {
-                    if (Player.IsDead)
-                    {
-                        PlayerDied = true;
-                        TimeOfDeath = GameTime;
-                    }
-
-                    if (PlayerDied && TimeOfDeath + 5000 <= GameTime)
-                    {
-                        // Player has died and respawned after 5 seconds
-                        Vector3 respawnLocation = Teams[PlayerTeam].SpawnPoints.Count > 0 ? Teams[PlayerTeam].SpawnPoints[0] : Vector3.Zero;
-
-                        if (respawnLocation == Vector3.Zero) return;
-                        Teams[PlayerTeam].Tier4Ped = Player; // Reset the Tier 4 Ped for the team
-
-                        GTA.UI.Screen.FadeOut(2000);
-                        Script.Wait(2000);
-
-                        Player.Position = respawnLocation; // Move player to the spawn point
-
-                        PlayerDied = false; // Reset death state
-
-                        CurrentGamemode.OnPlayerDeath();
-
-                        Script.Wait(500);
-                        GTA.UI.Screen.FadeIn(500); // Fade in for 500ms
-                    }
+                    PlayerDied = true;
+                    CurrentGamemode.OnPlayerDeath(GameTime);
                 }
 
                 CurrentGamemode.OnTickGameRunning();
@@ -192,8 +192,8 @@ namespace GangWarSandbox
 
                 foreach (var squad in allSquads)
                 {
-                    // Ped AI
-                    if ((squad.SquadVehicle != null && GameTime % GWSettings.VEHICLE_AI_UPDATE_FREQUENCY == 0) || (squad.SquadVehicle == null && GameTime % GWSettings.AI_UPDATE_FREQUENCY == 0) || squad.JustSpawned)
+                    // Ped AI 
+                    if ((squad.SquadVehicle != null && squad.LastUpdateTime + GWSettings.VEHICLE_AI_UPDATE_FREQUENCY < GameTime) || (squad.LastUpdateTime + GWSettings.AI_UPDATE_FREQUENCY < GameTime) || squad.JustSpawned)
                     {
                         squad.Update();
                         CurrentGamemode.OnSquadUpdate(squad);
@@ -231,11 +231,10 @@ namespace GangWarSandbox
                 }
             }
 
-            sw.Stop();
-
-            if (DEBUG && sw.ElapsedMilliseconds > 5)
+            if (DEBUG && sw != null)
             {
-                Logger.LogDebug($"Tick took {sw.ElapsedMilliseconds} ms");
+                sw.Stop();
+                if (sw.ElapsedMilliseconds > 5) Logger.LogDebug($"Tick took {sw.ElapsedMilliseconds} ms");
             }
         }
 
@@ -254,9 +253,7 @@ namespace GangWarSandbox
         {
             if (IsBattleRunning || !CurrentGamemode.CanStartBattle()) return;
 
-            IsBattleRunning = true;
-
-            ResetPlayerRelations();
+            CurrentGamemode.SetRelationships();
 
             for (int i = 0; i < CapturePoints.Count; i++)
             {
@@ -275,7 +272,9 @@ namespace GangWarSandbox
             SpawnSquads();
 
             Game.Player.WantedLevel = 0; // Reset wanted level
-            Game.Player.DispatchsCops = false; // disable cop dispatches
+            IsBattleRunning = true;
+            Function.Call(Hash.SET_POLICE_IGNORE_PLAYER, Player.Handle, true);
+
         }
 
         public void StopBattle()
@@ -286,10 +285,12 @@ namespace GangWarSandbox
 
             CurrentGamemode.OnEnd();
 
-            GTA.UI.Screen.ShowSubtitle("Battle Ended!");
             CleanupAll();
 
             Game.Player.DispatchsCops = true; // Re-enable cop dispatches
+            Game.Player.WantedLevel = 0;
+            Function.Call(Hash.SET_POLICE_IGNORE_PLAYER, Player.Handle, false);
+
         }
 
         private void SpawnSquads()
@@ -303,7 +304,10 @@ namespace GangWarSandbox
 
                 if 
                 (
-                    Game.GameTime - LastSquadSpawnTime[team] >= TIME_BETWEEN_SQUAD_SPAWNS &&
+                    (Game.GameTime - LastSquadSpawnTime[team] >= TIME_BETWEEN_SQUAD_SPAWNS
+                    ||
+                    team.Squads.Count == 0)
+                    &&
                     CurrentGamemode.ShouldSpawnSquad(team, squadSize)
                 )
                 {
@@ -372,30 +376,46 @@ namespace GangWarSandbox
 
         public void AddSpawnpoint(int teamIndex)
         {
+
+            Vector3 pos;
             if (!IsBattleRunning)
             {
                 if (Game.IsWaypointActive)
                 {
-                    Vector3 waypointPos = World.WaypointPosition;
-                    Teams[teamIndex].AddSpawnpoint(waypointPos);
+                    pos = World.WaypointPosition;
+                    Teams[teamIndex].AddSpawnpoint(pos);
 
-                    GTA.UI.Screen.ShowSubtitle($"Spawnpoint added for Team {teamIndex + 1} at waypoint.");
+                    NotificationHandler.Send($"Spawnpoint added for Team {teamIndex + 1} at your currently placed waypoint.");
+
                     World.RemoveWaypoint();
 
                     
                 }
                 else
                 {
-                    Vector3 charPos = Game.Player.Character.Position;
-                    charPos.Z -= 1;
-                    Teams[teamIndex].AddSpawnpoint(charPos);
-                    GTA.UI.Screen.ShowSubtitle($"Spawnpoint added for Team {teamIndex + 1} at player location.");
+                    pos = Game.Player.Character.Position;
+                    pos.Z -= 1;
+                    Teams[teamIndex].AddSpawnpoint(pos);
+
+                    NotificationHandler.Send($"Spawnpoint added for Team {teamIndex + 1} at your character's position.");
 
                 }
             }
             else
             {
-                GTA.UI.Screen.ShowSubtitle("Stop the battle to create a new spawnpoint.");
+                NotificationHandler.Send($"You must stop the battle to create a new spawnpoint.");
+                return;
+            }
+
+            if (FirstSpawnpoint == Vector3.Zero)
+            {
+                FirstSpawnpoint = pos;
+                return;
+            }
+
+            if (FirstSpawnpoint.DistanceTo(pos) > 300f)
+            {
+                NotificationHandler.Send("That spawnpoint is pretty far away! Due to the nature of GTA, depending on where you are the navmesh may not load, and thus infantry squads will be stuck. This will be fixed in version 2.0 (next update.)");
             }
         }
 
@@ -403,9 +423,11 @@ namespace GangWarSandbox
         {
             if (IsBattleRunning)
             {
-                GTA.UI.Screen.ShowSubtitle("Stop the battle to remove spawnpoints.");
+                NotificationHandler.Send($"You must stop the battle to delete points.");
                 return;
             }
+
+            FirstSpawnpoint = Vector3.Zero;
 
             foreach (var team in Teams)
             {
@@ -488,7 +510,7 @@ namespace GangWarSandbox
                     }
                     catch (Exception ex)
                     {
-                        GTA.UI.Screen.ShowSubtitle($"Dead ped cleanup error: {ex.Message}");
+                        Logger.LogError("Dead ped cleanup error: " + ped.ToString());
                     }
                 }
 
@@ -539,41 +561,68 @@ namespace GangWarSandbox
 
         public void ResetPlayerRelations()
         {
+            if (PlayerTeam < -2 || PlayerTeam >= Teams.Count)
+                PlayerTeam = -1;
+
+            // Force player into custom group
+            var PlayerGroup = Game.Player.Character.RelationshipGroup;
+
             foreach (var team in Teams)
             {
                 team.IsPlayerTeam = false;
-                Function.Call(Hash.SET_RELATIONSHIP_BETWEEN_GROUPS, (int)Relationship.Hate, Game.Player.Character.RelationshipGroup, Teams[PlayerTeam].Group);
-                Function.Call(Hash.SET_RELATIONSHIP_BETWEEN_GROUPS, (int)Relationship.Hate, Teams[PlayerTeam].Group, Game.Player.Character.RelationshipGroup);
+
+                // Default everyone to hate player
+                Function.Call(Hash.SET_RELATIONSHIP_BETWEEN_GROUPS,
+                    (int)Relationship.Hate,
+                    PlayerGroup,
+                    team.Group);
+
+                Function.Call(Hash.SET_RELATIONSHIP_BETWEEN_GROUPS,
+                    (int)Relationship.Hate,
+                    team.Group,
+                    PlayerGroup);
             }
 
-            // Assign player to team
-            if (PlayerTeam < 0)
-            {
-                Game.Player.Character.RelationshipGroup = "PLAYER";
 
-                if (PlayerTeam == -1)
+            if (PlayerTeam == -2) return;
+            else if (PlayerTeam == -1)
+            {
+                // Free agent: everyone respects player
+                foreach (var team in Teams)
                 {
-                    foreach (var team in Teams)
-                    {
-                        Function.Call(Hash.SET_RELATIONSHIP_BETWEEN_GROUPS, (int)Relationship.Respect, Game.Player.Character.RelationshipGroup, team.Group);
-                        Function.Call(Hash.SET_RELATIONSHIP_BETWEEN_GROUPS, (int)Relationship.Respect, team.Group, Game.Player.Character.RelationshipGroup);
-                    }
+                    Function.Call(Hash.SET_RELATIONSHIP_BETWEEN_GROUPS,
+                        (int)Relationship.Respect,
+                        PlayerGroup,
+                        team.Group);
+
+                    Function.Call(Hash.SET_RELATIONSHIP_BETWEEN_GROUPS,
+                        (int)Relationship.Respect,
+                        team.Group,
+                        PlayerGroup);
                 }
             }
             else
             {
-                Function.Call(Hash.SET_RELATIONSHIP_BETWEEN_GROUPS, (int)Relationship.Companion, Game.Player.Character.RelationshipGroup, Teams[PlayerTeam].Group);
-                Function.Call(Hash.SET_RELATIONSHIP_BETWEEN_GROUPS, (int)Relationship.Companion, Teams[PlayerTeam].Group, Game.Player.Character.RelationshipGroup);
-                Teams[PlayerTeam].Tier4Ped = Player; // Assign player to be their team's "strong npc"
-                Teams[PlayerTeam].IsPlayerTeam = true;
+                var playerTeam = Teams[PlayerTeam];
 
-                // move the player to the first spawn point of their team
-                if (Teams[PlayerTeam].SpawnPoints.Count > 0)
-                {
-                    Player.Position = Teams[PlayerTeam].SpawnPoints[0];
-                }
+                Function.Call(Hash.SET_RELATIONSHIP_BETWEEN_GROUPS,
+                    (int)Relationship.Companion,
+                    PlayerGroup,
+                    playerTeam.Group);
+
+                Function.Call(Hash.SET_RELATIONSHIP_BETWEEN_GROUPS,
+                    (int)Relationship.Companion,
+                    playerTeam.Group,
+                    PlayerGroup);
+
+                playerTeam.IsPlayerTeam = true;
+                playerTeam.Tier4Ped = Player;
+
+                if (playerTeam.SpawnPoints.Count > 0)
+                    Player.Position = playerTeam.SpawnPoints[0];
             }
         }
+
 
 
         /// <summary>
@@ -593,7 +642,7 @@ namespace GangWarSandbox
                 {
                     if (team?.Squads == null) continue;
 
-                    foreach (var squad in team.Squads)
+                    foreach (var squad in team.GetAllSquads())
                     {
                         if (squad == null || squad.Waypoints == null || squad.Waypoints.Count == 0)
                             continue;
@@ -601,10 +650,22 @@ namespace GangWarSandbox
                         if (squad.SquadLeader == null || !squad.SquadLeader.Exists())
                             continue;
 
-                        Vector3 squadLeaderPos = squad.SquadLeader.Position;
-                        Vector3 targetPos = squad.Waypoints[0];
+                        for (int i = 0; i < squad.Waypoints.Count; i++)
+                        {
+                            Vector3 pos1 = i == 0 ? squad.SquadLeader.Position : squad.Waypoints[i - 1];
+                            Vector3 pos2 = squad.Waypoints[i];
+                            Color color = i == 0 ? Color.LimeGreen : Color.Red;
 
-                        World.DrawLine(squadLeaderPos, targetPos, Color.LimeGreen);
+                            if (squad.SquadLeader.IsInVehicle())
+                                {
+                                    World.DrawLine(pos1 + new Vector3(0, 0, 3), pos2, Color.LimeGreen);
+                                }
+                            else
+                                {
+                                    World.DrawLine(pos1, pos2, color);
+                                }
+                        }
+
                     }
                 }
             }

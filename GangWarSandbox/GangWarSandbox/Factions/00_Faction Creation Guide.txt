@@ -1,0 +1,146 @@
+## CREATION GUIDE
+## 6/19/25
+
+Making a new faction in GangWarSandbox is as simple as this:
+
+[Families]
+Models=g_m_y_famca_01,g_m_y_famdnf_01,g_m_y_famfor_01
+Tier4Model=ig_lamardavis
+
+VehicleSet=GangVehicles
+
+Tier1Weapons=WEAPON_PISTOL,WEAPON_MICROSMG
+Tier2Weapons=WEAPON_MINISMG,WEAPON_PUMPSHOTGUN,WEAPON_SMG
+Tier3Weapons=WEAPON_ASSAULTRIFLE
+
+BaseHealth=300
+AccuracyBonus=4
+MaxSoldiers=23
+TierUpgradeMultiplier=1.0
+
+
+
+__ STEP 1 -- Create a file __
+To create a faction, you must first be in the right directory (which if you found this file, you are)
+Factions must ALWAYS be placed into: .../scripts/GangWarSandbox/Factions
+
+If it is not placed here, it will not be seen by the mod's parser and thus will not be playable.
+
+The naming of the file does not matter-- as long as the file type is a ".ini"
+
+So, let's say we're making the Families, the gang that Franklin and Lamar are part of, we'd create a file with the path: .../scripts/GangWarSandbox/Factions/families.ini
+
+One thing to note is that factions are only seperated by file for organization purposes-- if you want to share a list of factions with a friend, you can put them all in one file,
+as long as each faction meets the format above!
+
+
+
+__ STEP 2 -- Find ped and weapon models __
+
+Provided are two links for peds and weapons:
+https://docs.fivem.net/docs/game-references/ped-models/#story
+https://gtahash.ru/weapons
+
+Note: Weapons must begin with the prefix "WEAPON_"
+
+
+
+__ STEP 3 -- Fill out all the information __
+Now that we have our ped models and the file is created, let's fill out how the faction looks and functions in the game world.
+
+We'll go step by step and look at each line on the example located above. 
+
+NAME TAG
+> [Families]
+
+As mentioned above, each faction needs a nametag. Without this, nothing below will be properly attributed to your faction!
+Give it a memorable name, as this will be what appears in the game UI.
+
+MODELS
+> Models=g_m_y_famca_01,g_m_y_famdnf_01,g_m_y_famfor_01
+> Tier4Model=ig_lamardavis
+
+Models are what the peds in this faction look like. Paste the ped model names into there, always seperated by a comma.
+The Tier 4 Model is the "juggernaut" that appears when the player joins the battle on a given team. Only one of these spawns at a time, so choose something memorable if possible!
+
+VEHICLE SETS
+> VehicleSet=GangVehicles
+
+As one might guess, Vehicle Sets are the cars, tanks, and helicopters a faction has. Otherwise, just take any Nametag from the VehicleSets file, and it's plug and play.
+NOTE: Like factions, the name of the file and the actual name of the VehicleSet in the mod are different. E.g. "Gang Vehicles" is actually GangVehicles.
+But generally speaking, you can just remove the space inbetween and it will work fine!
+
+WEAPONS
+> Tier1Weapons=WEAPON_PISTOL,WEAPON_MICROSMG
+> Tier2Weapons=WEAPON_MINISMG,WEAPON_PUMPSHOTGUN,WEAPON_SMG
+> Tier3Weapons=WEAPON_ASSAULTRIFLE
+
+This is very straightforward field. Ensure they are seperated by commas, and you always use the HASH of the vehicle. This will *always* start with "WEAPON_" as its prefix.
+
+BASE HEALTH
+> BaseHealth=100
+
+This is the health of the Tier One unit. This value increases for other tiers-- for example, tier 2 gets 1.2X the health of a tier 1 ped. These are automatically clamped to avoid
+too powerful of units, but keep in mind that anything over ~600 will be incredibly hard to kill.
+
+ACCURACY
+> AccuracyBonus=4
+
+This is NOT the accuracy of the peds-- rather, its a additive value to that number. Let's say base accuracy for a ped is 10 (tier 1 accuracy), a bonus of 4 would make it 14. 
+This is applied evenly to the higher tiers, so accuracy bonuses are much more beneficial for lower tier units.
+Try to avoid putting this above 20 unless that faction has very small number of max soldiers. Values above 30 will result in juggernauts having near-perfect accuracy.
+
+MAX SOLDIERS
+> MaxSoldiers=23
+
+Quite self explanatory, but max soldiers is the maximum number of LIVING peds at any point in time. This does not mean it will be constantly at this value--
+peds only spawn with their squads, so if the squad size of any given faction is 4, but they have 17/20 peds alive, one more will need to die before the 4 respawn. 
+
+UPGRADE MULTIPLIER
+> TierUpgradeMultiplier=1.0
+
+This is the chance of a troop upgrading a tier when it otherwise shouldn't. 1.0 means that it uses default upgrade behavior-- accepts numbers above and below 1.0.
+This allows you to have factions that are "stronger" be somewhat nerfed, or buff otherwise weaker factions by making their troops artificially more likely to be strong-- even when 
+
+Troop spawning is a 100 sided dice roll:
+Values under 60 spawn a Tier 1,
+Values under 90 spawn a Tier 2,
+Values under 100 or Squad Leaders spawn a Tier 3
+
+If you roll a dice roll of 53, with a multiplier of 1.2, you will get a rounded value of 64. This means that it will be a Tier 2 instead of a Tier 1. 
+Use this to buff underpowered factions.
+
+COMMENTS
+> # This is a comment!
+
+Comments are absolutely not necessary, but anything with a hashtag before it will be ignored by the parser. This means you can try different things out without deleting them,
+or leave notes for the future.
+
+Again, lines must BEGIN with a # for it to be ignored by the parser.
+
+e.g.
+TierUpgradeMultiplier = 1.0 # this is valid, and the comment doesn't make it unsafe!
+# TierUpgradeMultiplier = 100.0 too big, but fun for testing!!
+
+
+
+__ STEP 4 -- Balancing __
+
+Of course, this step isn't necessary! However, balancing factions against others may be useful. You can note with the existing factions that I have a comment above listing "Tiers"
+
+As a general rule, try to always keep a balance between the options! If BaseHealth is 600, that is a big number, so maybe the ped should have a smaller chance of upgrading itself.
+If accuracy is high, maybe lower the number of soldiers.
+
+This keeps factions competitive-- even Families vs Army, which realistically would be a bloodbath in favor of the Army, can be competitive if the Families use "swarm tactics" compared to the
+army's smaller unit counts. However, without the player's help, the Families will still struggle greatly against the Army-- which is by design, but something you may want to consider.
+
+>> Perfect balance does not equal fun! <<
+
+That is why I tried to split my starting factions into tiers. I did not want the Army to lose to the Families, but I still wanted the fight to be possible.
+
+
+__ END -- Common Mistakes __
+If you are troubleshooting why it's not working, look here!!
+
+1. The biggest mistake, first and foremost, is the file being the wrong type. The parser will ONLY look at any files with the ".ini" file type.
+2. If the faction is missing data types, check "GWS.log" It will let you know if there are any required fields missing, although I haven't done too much worker on parser error logging.

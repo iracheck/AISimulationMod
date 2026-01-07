@@ -19,6 +19,8 @@ namespace GangWarSandbox
         public static int MAX_CORPSES = 25; // Maximum number of corpses to keep rendered
         public static int MAX_SQUADLESS_VEHICLES = 10; // Maximum number of squadless vehicles to have in the world
 
+        public static float AI_ATTACK_RADIUS = 65f;
+
         public static bool SetOpenMenuKeybind(string keybind)
         {
             Keys parsedKey;

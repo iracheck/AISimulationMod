@@ -12,6 +12,7 @@ using GangWarSandbox.Core;
 using GangWarSandbox.Peds;
 using System.Drawing;
 using GangWarSandbox.Utilities;
+using System.Diagnostics;
 
 namespace GangWarSandbox
 {
@@ -75,7 +76,7 @@ namespace GangWarSandbox
         {
             if (Faction == null || Faction.MaxSoldiers <= 0)
             {
-                GTA.UI.Screen.ShowSubtitle("Faction is not set or has no soldiers available.");
+                Logger.LogError("Faction" + Name + " in slot " + TeamIndex + " is not set properly-- probably its 'squad size' is set to zero or negative values. Using default values instead.");
                 return DEFAULT_SQUAD_SIZE; // default
             }
 
@@ -101,7 +102,7 @@ namespace GangWarSandbox
 
         public int GetMaxNumPeds()
         {
-            if (IsPlayerTeam) return (int)(MAX_SOLDIERS * ModData.CurrentGamemode.UnitCountMultiplier * 0.8); // player team is "nerfed" in ped count
+            if (IsPlayerTeam) return (int)(MAX_SOLDIERS * ModData.CurrentGamemode.UnitCountMultiplier * 0.95); // player team is "nerfed" very slightly in total ped count
             return (int) (MAX_SOLDIERS * ModData.CurrentGamemode.UnitCountMultiplier);
         }
 

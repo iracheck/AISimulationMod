@@ -29,14 +29,20 @@ namespace GangWarSandbox.Peds
 
             DefendCapturePoint, // defend a capture point from enemies trying to take it
             AssaultCapturePoint, // capture a capture point by attacking it and any squads nearby
-            ReinforceAllies,
+            ReinforceAllies, // allies are in danger! reinforce them
             SeekAndDestroy, // assault a random enemy spawn point
-            ChargeCapturePoint,
+            ChargeCapturePoint, // todo
 
+            // regular vehicles
             VehicleSupport,
 
-            //AirSupport = 31,
-            //AirDrop = 32,
+            // air vehicles
+            AirSupport, //todo
+            AirDrop, //todo
+
+            // weaponized vehicles
+            WeaponizedVehicleAnchor, //todo
+            WeaponizedVehicleAssault, //todo
 
 
         }
@@ -48,7 +54,7 @@ namespace GangWarSandbox.Peds
             Aggressive, // the squad will act more aggressively, and move more quickly
         }
 
-        // Squad type is only used for spawning the squad.
+        // Squad type is only used for spawning the squad. Essentially, it determines the loadout for the squad, and then is discarded (never used again)
         public enum SquadType
         {
             Infantry = 0,
@@ -111,7 +117,7 @@ namespace GangWarSandbox.Peds
 
             if (CurrentGamemode.SpawnMethod == Gamemode.GamemodeSpawnMethod.Spawnpoint && Owner.SpawnPoints.Count > 0)
             {
-                spawnpoint = Owner.SpawnPoints[rand.Next(Owner.SpawnPoints.Count)];
+                spawnpoint = Owner.SpawnPoints[Rand.Next(Owner.SpawnPoints.Count)];
 
                 if (spawnpoint == null || spawnpoint == Vector3.Zero) return false;
                 SpawnPos = FindRandomPositionAroundSpawnpoint(spawnpoint);
@@ -134,18 +140,18 @@ namespace GangWarSandbox.Peds
             {
                 SpawnPos.Z += 95;
 
-                SpawnVehicle(VehicleSet.Type.Helicopter, SpawnPos);
+                SpawnVehicle(VehicleSet.Type.Helicopter, SpawnPos, CurrentGamemode.SpawnMethod == Gamemode.GamemodeSpawnMethod.Random);
                 Owner.HelicopterSquads.Add(this);
             }
             else if (Type == SquadType.WeaponizedVehicle && ModData.CurrentGamemode.SpawnWeaponizedVehicles) // weaponized vehicle
             {
                 IsWeaponizedVehicle = true;
-                SpawnVehicle(VehicleSet.Type.WeaponizedVehicle, SpawnPos);
+                SpawnVehicle(VehicleSet.Type.WeaponizedVehicle, SpawnPos, CurrentGamemode.SpawnMethod == Gamemode.GamemodeSpawnMethod.Random);
                 Owner.WeaponizedVehicleSquads.Add(this);
             }
             else if (Type == SquadType.CarVehicle && ModData.CurrentGamemode.SpawnVehicles) // reg vehicle
             {
-                SpawnVehicle(VehicleSet.Type.Vehicle, SpawnPos);
+                SpawnVehicle(VehicleSet.Type.Vehicle, SpawnPos, CurrentGamemode.SpawnMethod == Gamemode.GamemodeSpawnMethod.Random);
                 Owner.VehicleSquads.Add(this);
             }
             else // infantry
@@ -172,7 +178,7 @@ namespace GangWarSandbox.Peds
                     defend += StrategyAIHelpers.CalculateNeedToDefendPoint(Owner);
                     max += assault + defend;
 
-                    int randNum = rand.Next(0, max);
+                    int randNum = Rand.Next(0, max);
 
                     if (randNum <= assault) // Assault
                     {
@@ -194,7 +200,7 @@ namespace GangWarSandbox.Peds
         {
             if (Personality == 0)
             {
-                int randNum = rand.Next(0, 101);
+                int randNum = Rand.Next(0, 101);
 
                 if (randNum <= 50) // 50% chance to be aggressive
                     Personality = SquadPersonality.Aggressive;

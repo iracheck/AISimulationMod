@@ -10,8 +10,6 @@ namespace GangWarSandbox.Utilities
 {
     static class Logger
     {
-        private static GangWarSandbox ModData = GangWarSandbox.Instance; // Reference to the main mod instance
-
         public static void Log(String data, String logType = "LOG")
         {
             if (!File.Exists(ModFiles.LOG_FILE_PATH))

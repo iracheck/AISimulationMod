@@ -96,12 +96,17 @@ namespace GangWarSandbox
 
             MainMenu.ElementAt(0).Enabled = !Mod.IsBattleRunning;
 
-            var gmMenu = gm.ConstructGamemodeMenu();
+            List<NativeMenu> gmMenus = gm.ConstructGamemodeMenus();
 
-            if (gmMenu != null)
+            if (gmMenus != null && gmMenus.Count > 0)
             {
-                var menu = MainMenu.AddSubMenu(gmMenu);
-                menu.Enabled = !Mod.IsBattleRunning;
+                foreach (var menu in gmMenus)
+                {
+                    if (menu == null) continue;
+
+                    var thisMenu = MainMenu.AddSubMenu(menu);
+                    thisMenu.Enabled = !Mod.IsBattleRunning;
+                }
             }
 
             if (gm.MaxTeams > 1)
@@ -110,7 +115,7 @@ namespace GangWarSandbox
                 menu.Enabled = !Mod.IsBattleRunning;
             }
 
-            if (Gamemode.ShouldBeEnabled(gm.EnableParameter_Spawnpoints) || Gamemode.ShouldBeEnabled(gm.EnableParameter_CapturePoints))
+            if (gm.EnableParameter_Spawnpoints || gm.EnableParameter_CapturePoints)
             {
                 var menu = MainMenu.AddSubMenu(CreatePointSetupMenu(gm, oldGM));
                 menu.Enabled = !Mod.IsBattleRunning;
@@ -170,7 +175,7 @@ namespace GangWarSandbox
             MenuPool.Add(TeamSetupMenu);
 
             // PLAYER TEAM SETUP
-            List<string> playerTeamOptions = new List<string>() { "Neutral", "Hates Everyone", "Team 1" };
+            List<string> playerTeamOptions = new List<string>() { "Hates Everyone", "Neutral", "Team 1" };
 
             var playerTeamItem = new NativeListItem<string>("Player Team", playerTeamOptions.ToArray());
             playerTeamItem.Description = "The team of the player character.";
@@ -233,7 +238,7 @@ namespace GangWarSandbox
             MenuPool.Add(BattleOptionsMenu);
 
             // A multiplier from the value located in the faction settings, max of 10x
-            var unitCountMultiplier = new NativeSliderItem("Unit Count Multiplier", "Current Multiplier: 1.0x", 100, 10);
+            var unitCountMultiplier = new NativeSliderItem("Unit Count Multiplier", "Current Multiplier: 1.0x", 100, (int)(gm.UnitCountMultiplier * 10));
 
             // Values letting the user decide if they want to allow vehicles, weaponized vehicles, and helicopters in the battle
             var allowVehicles = new NativeCheckboxItem("Vehicles", "Allow non-weaponized vehicles to be used in the battle.", gm.SpawnVehicles);
@@ -243,8 +248,10 @@ namespace GangWarSandbox
                 "Due to early access, their modified AI has not been fully completed. Helicopters harm the flow of the battle, so do not expect fluid results.", gm.SpawnHelicopters);
             var fogOfWar = new NativeCheckboxItem("Fog of War", "Fog of war adds an area in which you cannot see enemies on the minimap. Note that fog of war does not disable fading blips from dying npcs.", gm.FogOfWar);
 
+            unitCountMultiplier.Description = "Current Multiplier: " + Mod.CurrentGamemode.UnitCountMultiplier + "x";
             unitCountMultiplier.ValueChanged += (item, args) =>
             {
+                if (unitCountMultiplier.Value == 0) unitCountMultiplier.Value = 1;
                 Mod.CurrentGamemode.UnitCountMultiplier = ((float)unitCountMultiplier.Value) / 10;
                 unitCountMultiplier.Description = "Current Multiplier: " + Mod.CurrentGamemode.UnitCountMultiplier + "x";
             };
@@ -254,11 +261,11 @@ namespace GangWarSandbox
             allowWeaponizedVehicles.CheckboxChanged += (item, args) => { gm.SpawnWeaponizedVehicles = allowWeaponizedVehicles.Checked; };
             allowHelicopters.CheckboxChanged += (item, args) => { gm.SpawnHelicopters = allowHelicopters.Checked; };
 
-            unitCountMultiplier.Enabled = Gamemode.ShouldBeEnabled(gm.EnableParameter_UnitCountMultiplier);
-            fogOfWar.Enabled = Gamemode.ShouldBeEnabled(gm.EnableParameter_FogOfWar);
-            allowVehicles.Enabled = Gamemode.ShouldBeEnabled(gm.EnableParameter_AllowVehicles);
-            allowWeaponizedVehicles.Enabled = Gamemode.ShouldBeEnabled(gm.EnableParameter_AllowWeaponizedVehicles);
-            allowHelicopters.Enabled = Gamemode.ShouldBeEnabled(gm.EnableParameter_AllowHelicopters);
+            unitCountMultiplier.Enabled = gm.EnableParameter_UnitCountMultiplier;
+            fogOfWar.Enabled = gm.EnableParameter_FogOfWar;
+            allowVehicles.Enabled = gm.EnableParameter_AllowVehicles;
+            allowWeaponizedVehicles.Enabled = gm.EnableParameter_AllowWeaponizedVehicles;
+            allowHelicopters.Enabled = gm.EnableParameter_AllowHelicopters;
 
             BattleOptionsMenu.Add(unitCountMultiplier);
 
@@ -282,12 +289,12 @@ namespace GangWarSandbox
                 int index = i;
                 var addSpawnpoint = new NativeItem($"Add Spawnpoint - Team {i + 1}", $"Adds a spawnpoint for team {i + 1} at your current location, or at your waypoint if you have one.");
                 addSpawnpoint.Activated += (item, args) => Mod.AddSpawnpoint(index);
-                addSpawnpoint.Enabled = Gamemode.ShouldBeEnabled(gm.EnableParameter_Spawnpoints);
+                addSpawnpoint.Enabled = gm.EnableParameter_Spawnpoints;
                 SpawnpointMenu.Add(addSpawnpoint);
             }
 
             var addCapPt = new NativeItem("Add Capture Point", "Adds a capture point at your current location, or at your waypoint if you have one.");
-            addCapPt.Enabled = Gamemode.ShouldBeEnabled(gm.EnableParameter_CapturePoints);
+            addCapPt.Enabled = gm.EnableParameter_CapturePoints;
             addCapPt.Activated += (item, args) => Mod.AddCapturePoint();
 
             var clear = new NativeItem("Clear All Points", "Clears all spawnpoints on the map. There is no undo button for this action.");
@@ -303,8 +310,8 @@ namespace GangWarSandbox
 
         public static int LoadPlayerTeamChoice()
         {
-            if (Mod.PlayerTeam == -2) return 1;
-            if (Mod.PlayerTeam == -1) return 0; // Neutral
+            if (Mod.PlayerTeam == -2) return 0;
+            if (Mod.PlayerTeam == -1) return 1; // Neutral
             else
             {
                 return Mod.PlayerTeam + 2;

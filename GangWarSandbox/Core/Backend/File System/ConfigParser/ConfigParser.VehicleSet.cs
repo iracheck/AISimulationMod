@@ -3,7 +3,6 @@ using GangWarSandbox.Utilities;
 using GTA;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -24,7 +23,7 @@ namespace GangWarSandbox.Core
             Logger.Parser("Parsing VehicleSets from INI files...");
             try
             {
-                string path = "scripts/GangWarSandbox/VehicleSets";
+                string path = ModFiles.VEHICLESET_PATH;
                 string[] files = Directory.GetFiles(path, "*.ini");
 
                 foreach (var file in files)

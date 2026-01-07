@@ -17,7 +17,7 @@ using GangWarSandbox.Utilities;
 
 namespace GangWarSandbox.Peds
 {
-    public class PedAI
+    public class AISubTasks
     {
         // Helper classes
         static GangWarSandbox ModData = GangWarSandbox.Instance;
@@ -32,6 +32,11 @@ namespace GangWarSandbox.Peds
         public static void RunToFarAway(Ped ped, Vector3 coord)
         {
             Function.Call(Hash.TASK_FOLLOW_NAV_MESH_TO_COORD, ped, coord.X, coord.Y, coord.Z, 2f, -1, 5.0f, 8, 0.0f);
+        }
+
+        public static void FollowPedAtRandomOffset(Ped ped, Ped target, int maxOffset = 6)
+        {
+            ped.Task.FollowToOffsetFromEntity(target, GenerateRandomOffset(maxOffset), 2f);
         }
 
         public static void DefendArea(Ped ped, Vector3 point)
@@ -102,7 +107,7 @@ namespace GangWarSandbox.Peds
 
         public static void DriveTo(Ped ped, Vehicle vehicle, Vector3 target)
         {
-            ped.Task.DriveTo(vehicle, target, 20f, 40f);
+            ped.Task.DriveTo(ped.CurrentVehicle, target, 20f, 30f, DrivingStyle.Rushed);
         }
 
         public static void DriveBy(Ped ped, Ped target)
@@ -175,13 +180,13 @@ namespace GangWarSandbox.Peds
 
             if (hasVehicle) maxStepSize = 80f;
 
-            // Convert END to a temporary road-based destination
-            Vector3 endRoad = World.GetNextPositionOnStreet(end);
+            //// Convert END to a temporary road-based destination
+            //Vector3 endRoad = World.GetNextPositionOnStreet(end);
 
-            // If the end road is a valid target, use that instead, to help with routing around buildings.
-            Vector3 navTarget = endRoad != Vector3.Zero ? endRoad : end;
+            //// If the end road is a valid target, use that instead, to help with routing around buildings.
+            //Vector3 navTarget = endRoad != Vector3.Zero ? endRoad : end;
 
-            Vector3 direction = navTarget - start;
+            Vector3 direction = end - start;
             float distance = direction.Length();
             direction.Normalize();
 
@@ -210,7 +215,7 @@ namespace GangWarSandbox.Peds
             }
 
             // If we routed to the road near the end, add final leg to the real endpoint
-            if (endRoad != Vector3.Zero)
+            if (end != Vector3.Zero)
             {
                 points.Add(end);
             }
@@ -279,15 +284,15 @@ namespace GangWarSandbox.Peds
             return PedsNearby;
         }
 
-        public static Vector3 GenerateRandomOffset()
+        public static Vector3 GenerateRandomOffset(int offsetLimit = 6)
         {
             float offsetX = 0;
             float offsetY = 0;
 
             while (Math.Abs(offsetX) < 1 && Math.Abs(offsetY) < 1) // ensure the offset is not too small
             {
-                offsetX = rand.Next(-5, 6);
-                offsetY = rand.Next(-5, 6);
+                offsetX = rand.Next(-(offsetLimit - 1), offsetLimit);
+                offsetY = rand.Next(-(offsetLimit - 1), offsetLimit);
             }
 
             return new Vector3(offsetX, offsetY, 0);

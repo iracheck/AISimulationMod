@@ -22,56 +22,58 @@ namespace GangWarSandbox.Peds
 {
     public partial class Squad
     {
-        static Random rand = new Random();
-        static PedAI pedAI = new PedAI();
+        static Random Rand = new Random();
+        static AISubTasks PedAI = new AISubTasks();
 
         static GangWarSandbox ModData = GangWarSandbox.Instance;
         private Gamemode CurrentGamemode => ModData.CurrentGamemode;
 
         // Constants
-        public const float SQUAD_ATTACK_RANGE = 60f;
+        static float SQUAD_ATTACK_RANGE = GWSettings.AI_ATTACK_RADIUS;
+        static int TARGET_REFIND_TIME = 1000; // time before cached targets are attempted to be refound (in milliseconds)
 
         // Squad Logic begins here
 
+        // Lifecycle Control
         public bool JustSpawned = true;
+        public double LastUpdateTime = 0; // uses GameTime, the last time (in milliseconds since the game has been opened) in which the squad was updated
+        public int CyclesAlive = 0; // simply tracks for how many update cycles this squad has been active in the game -->
 
+        // Members List
         public Ped SquadLeader;
         public List<Ped> Members = new List<Ped>();
 
+        // Squad Metadata
         public Team Owner;
-
         public int squadValue; // lower value squads may be assigned to less important tasks
-
-
-        public List<Vector3> Waypoints = new List<Vector3>();
-        public Dictionary<Ped, PedAssignment> PedAssignments = new Dictionary<Ped, PedAssignment>();
-        Dictionary<Ped, (Ped enemy, int timestamp)> PedTargetCache;
-
-        // Squad Stuck Timer-- if the squad leader is stuck for too long, it will try to move again
-        private int SquadLeaderStuckTicks = 0;
-
-        public SquadRole Role;
-        public SquadType Type;
-        public SquadPersonality Personality;
 
         // Abstract Orders
         // these are orders that come from the "Strategy AI" of each team
         public CapturePoint TargetPoint; // the location that the squad's role will be applied to-- variable
 
+        // Squad Stuck Timer-- if the squad leader is stuck for too long, it will try to move again
+        private int SquadLeaderStuckTicks = 0;
+
+        // AI 
+        public SquadRole Role;
+        public SquadType Type;
+        public SquadPersonality Personality;
+
+
         public Vehicle SquadVehicle = null;
-        public bool IsWeaponizedVehicle;
+        public bool IsWeaponizedVehicle; // this is set at spawn
 
         // Runs every 200ms (default) and updates all AI, squad states, etc.
         public bool Update()
         {
+            CyclesAlive++;
+            LastUpdateTime = Game.GameTime;
+
             if (IsEmpty())
             {
                 Destroy();
                 return false;
             }
-
-            // If at the last waypoint, get a new target!
-            if (Waypoints.Count == 0) SetTarget(CurrentGamemode.GetTarget(this));
 
             if (JustSpawned) JustSpawned = false;
 
@@ -81,22 +83,22 @@ namespace GangWarSandbox.Peds
             if (Waypoints != null && Waypoints.Count > 0)
             {
                 bool isCloseEnough = Waypoints.Count > 0 &&
-                    (SquadLeader.Position.DistanceTo(Waypoints[0]) < 15f) ||
-                    (SquadVehicle != null && SquadVehicle.Position.DistanceTo(Waypoints[0]) < 40f);
+                ((SquadLeader.Position.DistanceTo(Waypoints[0]) < 15f) ||
+                (SquadVehicle != null && SquadVehicle.Position.DistanceTo(Waypoints[0]) < 40f));
 
-                bool waypointSkipped = Waypoints.Count > 1 &&
-                    Waypoints[1] != null && Waypoints[1] != Vector3.Zero &&
-                    SquadLeader.Position.DistanceTo(Waypoints[1]) < 50f &&
-                    Waypoints[0].DistanceTo(SquadLeader.Position) > Waypoints[1].DistanceTo(SquadLeader.Position);
+                //bool waypointSkipped = Waypoints.Count > 1 &&
+                //    Waypoints[1] != null && Waypoints[1] != Vector3.Zero &&
+                //    SquadLeader.Position.DistanceTo(Waypoints[1]) < 50f &&
+                //    Waypoints[0].DistanceTo(SquadLeader.Position) > Waypoints[1].DistanceTo(SquadLeader.Position);
 
-                if (isCloseEnough || waypointSkipped)
+                if (isCloseEnough)
                 {
                     Waypoints.RemoveAt(0);
                     foreach (var ped in Members)
                     {
                         if (PedAssignments[ped] == PedAssignment.RunToPosition || PedAssignments[ped] == PedAssignment.DriveToPosition)
                         {
-                            PedAssignments[ped] = PedAssignment.None;
+                            PedAssignments[ped] = PedAssignment.Idle;
                         }
                     }
                 }
@@ -118,10 +120,7 @@ namespace GangWarSandbox.Peds
                 Ped ped = Members[i];
                 ped.AttachedBlip.Alpha = GetDesiredBlipVisibility(ped, Owner);
 
-                if (ped == null || !ped.Exists() || !ped.IsAlive || ped.IsRagdoll) continue; // skip to the next ped
-
-                // Block permanent events (e.g. automatic AI takeover in gta) when in vehicles
-                // ped.BlockPermanentEvents = ped.IsInVehicle() && !ped.IsInCombat;
+                if (ped == null || !ped.Exists() || !ped.IsAlive || ped.IsRagdoll) continue; // should remove them, but for now we can just skip to the next ped
 
                 // Gamemode based overrides
                 if (CurrentGamemode.AIOverride(this, ped)) continue;
@@ -132,7 +131,7 @@ namespace GangWarSandbox.Peds
                 // Handle logic on defending or assaulting capture points
                 PedAI_CapturePoint(ped);
 
-                if (ped.IsShooting && ped.IsInCombat|| PedAssignments[ped] == PedAssignment.AttackNearby || combat) continue;
+                if (ped.IsShooting && ped.IsInCombat || combat) continue;
 
                 // Handle logic with ped moving to and from its target
                 bool movementChecked = PedAI_Driving(ped);
@@ -209,11 +208,11 @@ namespace GangWarSandbox.Peds
             float dist = ped.Position.DistanceTo(Game.Player.Character.Position);
 
             // Distance conditions, only happens when player is on a team
-            if (dist > 125f) return 0;
+            if (dist > 90f) return 0;
             else if (dist < 50f) return maxAlpha;
             else
             {
-                maxAlpha = (int)(maxAlpha * (1 - (dist / 200)));
+                maxAlpha = (int)(maxAlpha * (1 - (dist / 200f)));
             }
 
             return maxAlpha;
@@ -222,9 +221,17 @@ namespace GangWarSandbox.Peds
 
         private int GetDesiredVehicleBlipVisiblity(Vehicle vehicle, Team team)
         {
-            if (Game.Player.Character.CurrentVehicle == vehicle) return 0; // hide players current vehicle
-            if (vehicle.Passengers.Count() != 0) return 255;
-            else return 0; // hide empty vehicles
+            float distFromPlayer = vehicle.Position.DistanceTo(Game.Player.Character.Position);
+            if (Game.Player.Character.CurrentVehicle == vehicle || vehicle.PassengerCount == 0) return 0; // hide players current vehicle
+
+            if (CurrentGamemode.FogOfWar == false || GWSettings.DEBUG) return 255;
+            
+            if (vehicle.PassengerCount != 0 && !(distFromPlayer > 160f))
+            {
+                if (vehicle.PassengerCount != 0 && distFromPlayer < 125f) return 255;
+                return (int)(255 * (1 - (distFromPlayer / 160f)));
+            }
+            else return 0; // hide empty or distant vehicles
         }
 
         public bool IsVehicleSquad()

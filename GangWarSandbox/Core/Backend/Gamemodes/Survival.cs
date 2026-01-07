@@ -20,6 +20,8 @@ namespace GangWarSandbox.Gamemodes
         double TimeStart;
         double TimeElapsed;
 
+        bool HealOnKill = true;
+
         // Gamemode States
         int CurrentThreatLevel; // Current level of the survival gamemode, used for difficulty scaling
 
@@ -38,40 +40,48 @@ namespace GangWarSandbox.Gamemodes
         List<int[]> ThreatLevelSettings = new List<int[]>
         {
             // max squads(total) (0) - vehicles (1) - weaponized vehicles (2) - helicopters (3) - max faction tier[1-3] (4) - threat weight (5)
-            new int[] { 2, 2, 0, 0, 1, 0 }, // 1
-            new int[] { 3, 2, 0, 0, 1, 120 }, // 2
-            new int[] { 4, 2, 0, 0, 1, 600 }, // 3
-            new int[] { 5, 3, 0, 0, 1, 1200 }, // 4
-            new int[] { 5, 3, 0, 1, 1, 1800 }, // 5
+            new int[] { 2, 1, 0, 0, 1, 0 }, // 1
+            new int[] { 3, 2, 0, 0, 1, 80 }, // 2
+            new int[] { 4, 2, 0, 0, 1, 400 }, // 3
+            new int[] { 5, 3, 0, 1, 1, 900 }, // 4
+            new int[] { 6, 4, 0, 1, 1, 1800 }, // 5
             new int[] { 6, 4, 0, 1, 2, 2700 }, // 6
             new int[] { 6, 3, 0, 1, 2, 3900 }, // 7
-            new int[] { 6, 3, 1, 1, 2, 5300 }, // 8
+            new int[] { 7, 3, 1, 1, 2, 5300 }, // 8
             new int[] { 7, 4, 1, 1, 2, 6900 }, // 9
-            new int[] { 7, 3, 1, 1, 3, 8200 }, // 10
+            new int[] { 8, 3, 1, 1, 3, 8200 }, // 10
             new int[] { 8, 3, 1, 2, 3, 9500 }, // 11
-            new int[] { 8, 3, 1, 2, 3, 11500 }, // 12
+            new int[] { 9, 3, 1, 2, 3, 11500 }, // 12
             new int[] { 9, 4, 1, 2, 3, 14000 }, // 13
-            new int[] { 9, 4, 1, 2, 3, 18000 }, // 14
-            new int[] { 10, 4, 2, 3, 3, 24000 }, // 15
-            new int[] { 11, 5, 3, 3, 3, 40000 }, // 16 - Endgame
+            new int[] { 10, 4, 1, 2, 3, 18000 }, // 14
+            new int[] { 11, 4, 2, 3, 3, 24000 }, // 15
+            new int[] { 12, 5, 3, 3, 3, 40000 }, // 16 - Endgame
         };
 
         int Combo;
         int ComboLastTime;
 
+        int HighestCombo;
+
+        int Kills;
+
         public SurvivalGamemode() : base("Survival", "Survive as long as possible. Kill enemies to earn points, and try to achieve the highest score you can! Just like trying to survive against the cops for as long as possible.\n\n[WORK IN PROGRESS]", 0)
         {
             SpawnMethod = GamemodeSpawnMethod.Random;
 
-            EnableParameter_AllowWeaponizedVehicles = GamemodeBool.True;
-            EnableParameter_AllowVehicles = GamemodeBool.True;
-            EnableParameter_AllowHelicopters = GamemodeBool.True;
+            EnableParameter_AllowWeaponizedVehicles = false;
+            EnableParameter_AllowVehicles = true;
+            EnableParameter_AllowHelicopters = true;
+     
 
-            EnableParameter_FogOfWar = GamemodeBool.False;
+            EnableParameter_FogOfWar = true;
             FogOfWar = true;
 
-            EnableParameter_CapturePoints = GamemodeBool.False;
-            EnableParameter_Spawnpoints = GamemodeBool.False;
+            EnableParameter_CapturePoints = true;
+            EnableParameter_Spawnpoints = true;
+
+            // survival has no juggernauts, yet.
+            HasTier4Ped = false;
         }
 
         // GAMEMODE PROVIDED OVERRIDDEN METHODS BEGIN HERE
@@ -79,7 +89,7 @@ namespace GangWarSandbox.Gamemodes
         public override void OnStart()
         {
             Mod.ClearAllPoints();
-            Mod.PlayerTeam = -2;
+            Mod.PlayerTeam = 0;
             TimeStart = Game.GameTime;
             
             PlayerScore = 0;
@@ -87,16 +97,21 @@ namespace GangWarSandbox.Gamemodes
             ComboLastTime = 0;
 
             CurrentThreatLevel = 0;
-
-            SetRelationships();
         }
 
-        public override void OnPlayerDeath()
+        public override void OnEnd()
         {
+            Game.Player.Money += CalculateMoneyEarned();
+        }
+
+
+        public override void OnPlayerDeath(int gameTime)
+        {
+            Mod.IsBattleRunning = false; // double check
             Mod.StopBattle();
         }
 
-        public override NativeMenu ConstructGamemodeMenu()
+        public override List<NativeMenu> ConstructGamemodeMenus()
         {
             Mod = GangWarSandbox.Instance;
 
@@ -109,6 +124,13 @@ namespace GangWarSandbox.Gamemodes
 
             NativeMenu gamemodeMenu = new NativeMenu("Survival Settings", "Survival Settings", "Modify the settings of your Survival gamemode, such as the factions hunting you.");
             BattleSetupUI.MenuPool.Add(gamemodeMenu);
+
+            var healOnKill = new NativeCheckboxItem($"Heal on Kill", "Heal a small amount of health upon killing an enemy.");
+            healOnKill.Checked = HealOnKill;
+            healOnKill.CheckboxChanged += (item, args) =>
+            {
+                HealOnKill = healOnKill.Checked;
+            };
 
             var level1Enemy = new NativeListItem<string>($"Tier 1 Hunter Faction", Mod.Factions.Keys.ToArray());
             level1Enemy.Description = "The primary team that appears to hunt you. These will always appear.";
@@ -164,8 +186,9 @@ namespace GangWarSandbox.Gamemodes
             gamemodeMenu.Add(level2Enemy);
             gamemodeMenu.Add(level3Enemy);
             //gamemodeMenu.Add(missions);
-            return gamemodeMenu;
-        } 
+
+            return new List<NativeMenu>(){gamemodeMenu};
+        }
 
         public override void OnTickGameRunning()
         {
@@ -187,13 +210,17 @@ namespace GangWarSandbox.Gamemodes
         {
             float multiplier = 0.5f;
             Entity killer = ped.Killer;
+            Kills++;
 
-            if (killer != Game.Player.Character) multiplier *= 0.75f;
+            if (killer != Game.Player.Character) multiplier *= 0.4f;
+
+            if (HealOnKill) Game.Player.Character.Health += 5;
 
             // Increase combo if the player has killed another ped within 7 seconds
             if (ComboLastTime > Game.GameTime - 7000)
             {
                 Combo++;
+                if (Combo > HighestCombo) HighestCombo = Combo;
             }
 
             // Get 50% of the max health of the ped, scaled by the current threat level and how deep the combo is
@@ -215,10 +242,23 @@ namespace GangWarSandbox.Gamemodes
 
         public override bool ShouldGetNewTarget(Squad s)
         {
-            if (s.Waypoints.Count == 0) return true;
+            if (s.Waypoints.Count != 0)
+            {
+                if (s.Waypoints.Last().DistanceTo(Game.Player.Character.Position) > 10f) return true;
+                else return false;
+            }
+            else
+            {
+                float distToPlayer = s.SquadLeader.Position.DistanceTo(Game.Player.Character.Position);
 
-            if (s.Waypoints.Last().DistanceTo(Game.Player.Character.Position) > 7.5f) return true;
-            else return false;
+                if (distToPlayer >= 10f)
+                {
+                    return true;
+                }
+            }
+
+
+            return false;
         }
 
         public override Vector3 GetTarget(Squad s)
@@ -231,7 +271,7 @@ namespace GangWarSandbox.Gamemodes
             Ped player = Game.Player.Character;
             float distanceToPlayer = ped.Position.DistanceTo(player.Position);
             var assignments = squad.PedAssignments;
-            bool hasLOS = PedAI.HasLineOfSight(ped, player);
+            bool hasLOS = AISubTasks.HasLineOfSight(ped, player);
 
 
             if (player.IsInVehicle())
@@ -258,12 +298,12 @@ namespace GangWarSandbox.Gamemodes
 
                 if ( squad.CanGetOutVehicle(ped) && (distanceToPlayer < 70f) || (hasLOS && (ped.HasBeenDamagedByAnyWeapon() || player.IsShooting)))
                 {
-                    PedAI.AttackEnemy(ped, player);
+                    AISubTasks.AttackEnemy(ped, player);
                     assignments[ped] = Squad.PedAssignment.AttackNearby;
                 }
                 else if (ped.IsInVehicle())
                 {
-                    PedAI.DriveBy(ped, player);
+                    AISubTasks.DriveBy(ped, player);
                     assignments[ped] = Squad.PedAssignment.GamemodeReserved1;
                 }
                 else if (assignments[ped] == Squad.PedAssignment.AttackNearby) return true;
@@ -325,8 +365,8 @@ namespace GangWarSandbox.Gamemodes
         {
             foreach (var ped in squad.Members)
             {
-                ped.Health = 120 + (CurrentThreatLevel * 5);
-                ped.Accuracy = (int) (ped.Accuracy * 0.5);
+                ped.Health = 120 + (CurrentThreatLevel * 3);
+                ped.Accuracy = (int)(ped.Accuracy * 0.3f);
 
                 if (ped.AttachedBlip != null) ped.AttachedBlip.Color = BlipColor.Red;
             }
@@ -382,6 +422,20 @@ namespace GangWarSandbox.Gamemodes
             }
         }
 
+        public int CalculateMoneyEarned()
+        {
+            int val = 0;
+
+            val = (50 * HighestCombo) + (25 * Kills) + ((PlayerScore - 5000));
+            if (val > 499)
+            {
+                NotificationHandler.SendFromLester("Nice show. Here's a tip, from your good pal Lester. $" + val.ToString() + " was sent to your account.");
+                return Helpers.Clamp(val, 25000, 0);
+            }
+
+            return 0;
+        }
+
         public bool UpdateThreatLevel()
         {
             // Threat level uses two factors:
@@ -390,8 +444,6 @@ namespace GangWarSandbox.Gamemodes
             // This combined score is used to determine the current threat level, which is then used to scale the difficulty of the gamemode.
 
             double threatWeight = (TimeElapsed / 1000) + (PlayerScore * 0.2);
-
-            if (Game.Player.Character.IsInVehicle() && CurrentThreatLevel < 3) CurrentThreatLevel = 3;
 
             if (CurrentThreatLevel < ThreatLevelSettings.Count - 1 && threatWeight > ThreatLevelSettings[CurrentThreatLevel + 1][5])
             {

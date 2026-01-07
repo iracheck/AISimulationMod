@@ -3,7 +3,6 @@ using GangWarSandbox.Utilities;
 using GTA;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -23,7 +22,7 @@ namespace GangWarSandbox.Core
 
             try
             {
-                string path = "scripts/GangWarSandbox/Factions";
+                string path = ModFiles.FACTIONS_PATH;
 
                 string[] files = Directory.GetFiles(path, "*.ini");
 

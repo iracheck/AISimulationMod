@@ -5,24 +5,27 @@ using LemonUI.Menus;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using GangWarSandbox.Utilities;
 using static GangWarSandbox.Peds.Squad;
+using GTA.Native;
 
 namespace GangWarSandbox.Gamemodes
 {
     public abstract class Gamemode
     {
-        // Last updated: 6/5/2025
+        // Last updated: 12/28/2025
 
+        // Shared References
+        static Random rand = new Random();
         protected static GangWarSandbox Mod { get; set; }
 
-        public enum GamemodeBool { PlayerChoice = -1, False = 0, True = 1 }
+        // Enumerators
         public enum GamemodeSpawnMethod { Spawnpoint, Random }
 
+        // Mandatory Information
         public string Name { get; private set; } = "no_name";
         public string Description { get; private set; } = "no_desc";
         public int MaxTeams { get; private set; } = GangWarSandbox.NUM_TEAMS;
@@ -31,17 +34,17 @@ namespace GangWarSandbox.Gamemodes
         public GamemodeSpawnMethod SpawnMethod = GamemodeSpawnMethod.Spawnpoint; // options: "Spawnpoint", "Random"
 
         // Treat these ints as a bool --> 0 = false, 1 = true, -1 = player choice
-        public GamemodeBool EnableParameter_AllowVehicles { get; set; } = GamemodeBool.PlayerChoice;
-        public GamemodeBool EnableParameter_AllowWeaponizedVehicles { get; set; } = GamemodeBool.PlayerChoice;
-        public GamemodeBool EnableParameter_AllowHelicopters { get; set; } = GamemodeBool.PlayerChoice;
-        public GamemodeBool EnableParameter_FogOfWar { get; set; } = GamemodeBool.PlayerChoice;
+        public bool EnableParameter_AllowVehicles { get; set; } = true;
+        public bool EnableParameter_AllowWeaponizedVehicles { get; set; } = true;
+        public bool EnableParameter_AllowHelicopters { get; set; } = true;
+        public bool EnableParameter_FogOfWar { get; set; } = true;
 
         // if unit count multiplier is not "PlayerChoice," it can't be modified. Unfortunately just a small quirk with checkboxes and how they relate to Gamemodes.
-        public GamemodeBool EnableParameter_UnitCountMultiplier { get; set; } = GamemodeBool.PlayerChoice;
+        public bool EnableParameter_UnitCountMultiplier { get; set; } = true;
 
 
-        public GamemodeBool EnableParameter_Spawnpoints { get; set; } = GamemodeBool.PlayerChoice;
-        public GamemodeBool EnableParameter_CapturePoints { get; set; } = GamemodeBool.PlayerChoice;
+        public bool EnableParameter_Spawnpoints { get; set; } = true;
+        public bool EnableParameter_CapturePoints { get; set; } = true;
 
         // These are the users actual choices
         public bool SpawnVehicles { get; set; } = true;
@@ -67,6 +70,9 @@ namespace GangWarSandbox.Gamemodes
         /// </summary>
         public float PedHealthMultiplier { get; set; } = 1.0f;
 
+        /// <summary>
+        /// Do Juggernauts spawn?
+        /// </summary>
         public bool HasTier4Ped = true;
 
 
@@ -83,9 +89,9 @@ namespace GangWarSandbox.Gamemodes
         // For anyone looking to add new gamemodes-- these are all the methods avaliable to be implemented in adding your own logic.
 
         /// <summary>
-        /// This allows you to construct a LemonUI menu for the gamemode, which appears as the second option in the list below the "Gamemode." It will appear as "Gamemode Options." See LemonUI documentation for more help.
+        /// This allows you to construct one or more LemonUI menu for the gamemode, which appears after the first option in the list (below the "Gamemode.") It will appear as "Gamemode Options." See LemonUI documentation for more help.
         /// </summary>
-        public virtual NativeMenu ConstructGamemodeMenu()
+        public virtual List<NativeMenu> ConstructGamemodeMenus()
         {
             return null;
         }
@@ -112,7 +118,7 @@ namespace GangWarSandbox.Gamemodes
             if (validTeams >= 2) return true;
             else
             {
-                GTA.UI.Screen.ShowSubtitle("You must have atleast two factions with a spawnpoint to start the battle.", 2500);
+                NotificationHandler.Send("You must have atleast two factions with a spawnpoint to start the battle.");
                 return false;
             }
         }
@@ -122,11 +128,11 @@ namespace GangWarSandbox.Gamemodes
         /// </summary>
         public virtual void InitializeGamemode(Gamemode oldGM)
         {
-            if (ShouldBeEnabled(EnableParameter_UnitCountMultiplier)) UnitCountMultiplier = oldGM.UnitCountMultiplier;
-            if (ShouldBeEnabled(EnableParameter_AllowVehicles)) SpawnVehicles = oldGM.SpawnVehicles;
-            if (ShouldBeEnabled(EnableParameter_AllowWeaponizedVehicles)) SpawnWeaponizedVehicles = oldGM.SpawnWeaponizedVehicles;
-            if (ShouldBeEnabled(EnableParameter_AllowHelicopters)) SpawnHelicopters = oldGM.SpawnHelicopters;
-            if (ShouldBeEnabled(EnableParameter_FogOfWar)) FogOfWar = oldGM.FogOfWar;
+            if (EnableParameter_UnitCountMultiplier) UnitCountMultiplier = oldGM.UnitCountMultiplier;
+            if (EnableParameter_AllowVehicles) SpawnVehicles = oldGM.SpawnVehicles;
+            if (EnableParameter_AllowWeaponizedVehicles) SpawnWeaponizedVehicles = oldGM.SpawnWeaponizedVehicles;
+            if (EnableParameter_AllowHelicopters) SpawnHelicopters = oldGM.SpawnHelicopters;
+            if (EnableParameter_FogOfWar) FogOfWar = oldGM.FogOfWar;
         }
 
         /// <summary>
@@ -147,7 +153,9 @@ namespace GangWarSandbox.Gamemodes
         /// <summary>
         /// Runs once when the battle begins. This specifically executes immediately after teams are initialized with factions, but before spawning begins.
         /// </summary>
-        public virtual void OnStart() { }
+        public virtual void OnStart()
+        {
+        }
 
         /// <summary>
         /// Runs immediately after a squad is spawned.
@@ -192,7 +200,10 @@ namespace GangWarSandbox.Gamemodes
         /// <summary>
         /// Runs once when the battle ends. This method should clean up any UI modifications, if applicable.
         /// </summary>
-        public virtual void OnEnd() { }
+        public virtual void OnEnd()
+        {
+            Function.Call(Hash.CLEAR_RESTART_COORD_OVERRIDE);
+        }
 
         /// <summary>
         ///  Runs whenever a ped is killed, and immediately before that ped is cleaned up by the script.
@@ -202,12 +213,11 @@ namespace GangWarSandbox.Gamemodes
         public virtual void OnPedKilled(Ped ped, Team teamOfPed) { }
 
         /// <summary>
-        /// Handles squad target finding. Waypoints are automatically generated based upon this 
+        /// Handles squad target finding. Waypoints are automatically generated based upon this data, as defined in Squad.cs
         /// </summary>
         /// <param name="squad">The squad that was wiped out</param>
         public virtual Vector3 GetTarget(Squad s)
         {
-            Random rand = new Random();
             List<CapturePoint> capturePoints = Mod.CapturePoints;
             Vector3 target = Vector3.Zero;
 
@@ -248,20 +258,19 @@ namespace GangWarSandbox.Gamemodes
             else if (s.Role == SquadRole.SeekAndDestroy || s.Role == SquadRole.VehicleSupport)
             {
                 {
-                    target = PedAI.FindRandomEnemySpawnpoint(s.Owner);
+                    target = AISubTasks.FindRandomEnemySpawnpoint(s.Owner);
                 }
             }
 
             // Final failsafe: ensure a non-zero target is returned
             if (target == Vector3.Zero)
             {
-                target = PedAI.FindRandomEnemySpawnpoint(s.Owner);
+                target = AISubTasks.FindRandomEnemySpawnpoint(s.Owner);
 
                 // Still can't find one? Fallback solution
                 if (target == Vector3.Zero)
                 {
                     Logger.LogError("A squad failed to find a valid target.");
-                    GTA.UI.Screen.ShowSubtitle("A squad failed to find a valid target. This is a bug, please report it to the developer.");
                 }
             }
 
@@ -327,7 +336,7 @@ namespace GangWarSandbox.Gamemodes
 
         /// <summary>
         /// Allows you to determine new conditions for when a vehicle squad should spawn. Unlike ShouldSpawnSquad(), this OVERWRITES EXISTING conditions, as existing conditions are incredibly circumstanstial.
-        /// Example: Infinite Battle/Skirmish conditions say "roughly" 20% of a team's population is allocated to regular vehicle squads.
+        /// Example: Infinite Battle/Skirmish conditions say "roughly" 15% of a team's population is allocated to regular vehicle squads.
         /// Return true to allow spawning, return false to prevent it. Returns true by default.
         /// </summary>
         public virtual bool ShouldSpawnVehicleSquad(Team team)
@@ -336,7 +345,7 @@ namespace GangWarSandbox.Gamemodes
 
             int members = GetMemberCountByType(team, team.VehicleSquads);
 
-            if (members >= (team.GetMaxNumPeds() * 0.10f)) // 10%
+            if (members >= (team.GetMaxNumPeds() * 0.15f)) // 15%
             {
                 return false;
             }
@@ -355,7 +364,7 @@ namespace GangWarSandbox.Gamemodes
 
             int members = GetMemberCountByType(team, team.WeaponizedVehicleSquads);
 
-            if (members >= (team.GetMaxNumPeds() * 0.10f)) // 10%
+            if (members >= (team.GetMaxNumPeds() * 0.5f)) // 5%
             {
                 return false;
             }
@@ -383,20 +392,11 @@ namespace GangWarSandbox.Gamemodes
         }
 
         /// <summary>
-        /// Listener for when the player dies. Used to determine custom effects during battle when the player dies. Executes *AFTER* the player respawns.
+        /// Listener for when the player dies. Used to determine custom effects during battle when the player dies.
         /// </summary>
-        public virtual void OnPlayerDeath() { }
-
-        public static bool ShouldBeTicked(GamemodeBool b)
+        public virtual void OnPlayerDeath(int gameTime)
         {
-            if (b == GamemodeBool.PlayerChoice || b == GamemodeBool.True) return true;
-            else return false;
-        }
 
-        public static bool ShouldBeEnabled(GamemodeBool b)
-        {
-            if (b == GamemodeBool.PlayerChoice) return true;
-            else return false;
         }
 
         protected static int GetMemberCountByType(Team team, List<Squad> list)

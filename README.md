@@ -1,9 +1,12 @@
 # Dynamic AI Simulation "GangWarSandbox"
-**[Download on NexusMods](https://www.nexusmods.com/gta5/mods/1430)**
+**[Download on NexusMods](https://www.nexusmods.com/gta5/mods/1430)** (200+ downloads!)
 
 Create your battlefield anywhere on the map and watch the AI fight for control of the map, then join in yourself for extra chaos.. <br>
 
 While this started as a learning project to explore AI, state management, and modular game architectures, GTA5 was used as a foundation so I could focus on experimenting with AI systems and game logic rather than reinventing core game mechanics. It also has ended up surpassing that original goal by quite a bit, so certain elements (e.g. the 'master' class which serves as the entrypoint) are due a rewrite, especially since implementing 
+
+### State of the Project
+This project has turned into quite a monolith, and thus there are some changes I plan to make over the next few months. Mainly-- getting rid of the god class that is the project's entrypoint. I'm quite proud of the things I developed more recently, like the Gamemode API and the data parser, and those two have taught me a lot about C# and also programming in general that I want to backport onto the older elements of the project. 
 
 ### Tech Stack
 **Language:** C#, .NET 4.8 <br>

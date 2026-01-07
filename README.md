@@ -20,7 +20,7 @@ While this started as a learning project to explore AI, state management, and mo
 ### Dependencies
 - ScriptHookV
 - ScriptHookVDotNet 3.7-nightly
-- LemonUI 2.2 (or newer)
+- LemonUI-SHVDN3 2.2 (or newer) 
   
 ### How to Use
 - Ensure all dependencies are installed
@@ -67,11 +67,10 @@ Beyond that, you must override the existing functions within the `Gamemode` clas
 - `OnEnd` is called as soon as the end button is pressed
 
 ### Parameters
-These are the parameters that the user may (or may not, if thats what you want) modify.
+These are the parameters that the user may (or may not, if thats what you want) modify. By default, all parameters are avaliable to be modified, but you can disable them with the "EnableParameter_[x]" field. 
 ```csharp
 public GamemodeSpawnMethod SpawnMethod = GamemodeSpawnMethod.Spawnpoint; // options: "Spawnpoint", "Random"
 
-// below is the default values. You can prevent users from modifying them by modifying the "EnableParameter_[x]" field.
 public bool SpawnVehicles { get; set; } = true;
 public bool SpawnWeaponizedVehicles { get; set; } = false;
 public bool SpawnHelicopters { get; set; } = false;

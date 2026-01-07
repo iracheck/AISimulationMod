@@ -112,7 +112,7 @@ namespace GangWarSandbox.Peds
                 PedTargetCache[ped] = (nearbyEnemy, Game.GameTime);
             }
 
-            if (nearbyEnemy == null && !ped.IsInCombat)
+            if (nearbyEnemy == null)
                 return false;
 
             bool canExitVehicle = CanGetOutVehicle(ped);

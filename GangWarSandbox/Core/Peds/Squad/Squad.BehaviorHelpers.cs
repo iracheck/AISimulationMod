@@ -100,7 +100,7 @@ namespace GangWarSandbox.Peds
                                (nearbyEnemy.IsDead) ||
                                (ped.Position.DistanceTo(nearbyEnemy.Position) > SQUAD_ATTACK_RANGE);
 
-            if (nearbyEnemy == null && SquadLeader.IsInCombat)
+            if (nearbyEnemy == null && PedTargetCache[SquadLeader].enemy != null)
             {
                 nearbyEnemy = PedTargetCache[SquadLeader].enemy;
             }
@@ -112,9 +112,8 @@ namespace GangWarSandbox.Peds
                 PedTargetCache[ped] = (nearbyEnemy, Game.GameTime);
             }
 
-            if (Game.Player.Character == nearbyEnemy) Logger.LogDebug("Player is found enemy!");
-
-            if (nearbyEnemy == null) return false; // no enemy found
+            if (nearbyEnemy == null && !ped.IsInCombat)
+                return false;
 
             bool canExitVehicle = CanGetOutVehicle(ped);
             float distanceToEnemy = ped.Position.DistanceTo(nearbyEnemy.Position);
@@ -145,7 +144,7 @@ namespace GangWarSandbox.Peds
             }
 
             // ON FOOT LOGIC
-            if (distanceToEnemy <= 30f || hasLOS)
+            if (distanceToEnemy <= SQUAD_ATTACK_RANGE)
             {
                 if (PedAssignments[ped] != PedAssignment.AttackNearby)
                 {
@@ -155,6 +154,11 @@ namespace GangWarSandbox.Peds
             }
             else
             {
+                if (ped.IsInCombat)
+                {
+                    AISubTasks.AttackNearbyEnemies(ped, 200f);
+                    PedAssignments[ped] = PedAssignment.AttackNearby;
+                }
                 // Move toward last known position if out of LOS
                 if (PedAssignments[ped] != PedAssignment.RunToPosition)
                 {

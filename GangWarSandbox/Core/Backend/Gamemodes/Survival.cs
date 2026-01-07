@@ -69,15 +69,16 @@ namespace GangWarSandbox.Gamemodes
         {
             SpawnMethod = GamemodeSpawnMethod.Random;
 
-            EnableParameter_AllowWeaponizedVehicles = GamemodeBool.True;
-            EnableParameter_AllowVehicles = GamemodeBool.True;
-            EnableParameter_AllowHelicopters = GamemodeBool.True;
+            EnableParameter_AllowWeaponizedVehicles = false;
+            EnableParameter_AllowVehicles = true;
+            EnableParameter_AllowHelicopters = true;
+     
 
-            EnableParameter_FogOfWar = GamemodeBool.PlayerChoice;
+            EnableParameter_FogOfWar = true;
             FogOfWar = true;
 
-            EnableParameter_CapturePoints = GamemodeBool.False;
-            EnableParameter_Spawnpoints = GamemodeBool.False;
+            EnableParameter_CapturePoints = true;
+            EnableParameter_Spawnpoints = true;
 
             // survival has no juggernauts, yet.
             HasTier4Ped = false;
@@ -96,8 +97,6 @@ namespace GangWarSandbox.Gamemodes
             ComboLastTime = 0;
 
             CurrentThreatLevel = 0;
-
-            SetRelationships();
         }
 
         public override void OnEnd()

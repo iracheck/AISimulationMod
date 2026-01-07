@@ -23,7 +23,6 @@ namespace GangWarSandbox.Gamemodes
         protected static GangWarSandbox Mod { get; set; }
 
         // Enumerators
-        public enum GamemodeBool { PlayerChoice = -1, False = 0, True = 1 }
         public enum GamemodeSpawnMethod { Spawnpoint, Random }
 
         // Mandatory Information
@@ -35,17 +34,17 @@ namespace GangWarSandbox.Gamemodes
         public GamemodeSpawnMethod SpawnMethod = GamemodeSpawnMethod.Spawnpoint; // options: "Spawnpoint", "Random"
 
         // Treat these ints as a bool --> 0 = false, 1 = true, -1 = player choice
-        public GamemodeBool EnableParameter_AllowVehicles { get; set; } = GamemodeBool.PlayerChoice;
-        public GamemodeBool EnableParameter_AllowWeaponizedVehicles { get; set; } = GamemodeBool.PlayerChoice;
-        public GamemodeBool EnableParameter_AllowHelicopters { get; set; } = GamemodeBool.PlayerChoice;
-        public GamemodeBool EnableParameter_FogOfWar { get; set; } = GamemodeBool.PlayerChoice;
+        public bool EnableParameter_AllowVehicles { get; set; } = true;
+        public bool EnableParameter_AllowWeaponizedVehicles { get; set; } = true;
+        public bool EnableParameter_AllowHelicopters { get; set; } = true;
+        public bool EnableParameter_FogOfWar { get; set; } = true;
 
         // if unit count multiplier is not "PlayerChoice," it can't be modified. Unfortunately just a small quirk with checkboxes and how they relate to Gamemodes.
-        public GamemodeBool EnableParameter_UnitCountMultiplier { get; set; } = GamemodeBool.PlayerChoice;
+        public bool EnableParameter_UnitCountMultiplier { get; set; } = true;
 
 
-        public GamemodeBool EnableParameter_Spawnpoints { get; set; } = GamemodeBool.PlayerChoice;
-        public GamemodeBool EnableParameter_CapturePoints { get; set; } = GamemodeBool.PlayerChoice;
+        public bool EnableParameter_Spawnpoints { get; set; } = true;
+        public bool EnableParameter_CapturePoints { get; set; } = true;
 
         // These are the users actual choices
         public bool SpawnVehicles { get; set; } = true;
@@ -129,11 +128,11 @@ namespace GangWarSandbox.Gamemodes
         /// </summary>
         public virtual void InitializeGamemode(Gamemode oldGM)
         {
-            if (ShouldBeEnabled(EnableParameter_UnitCountMultiplier)) UnitCountMultiplier = oldGM.UnitCountMultiplier;
-            if (ShouldBeEnabled(EnableParameter_AllowVehicles)) SpawnVehicles = oldGM.SpawnVehicles;
-            if (ShouldBeEnabled(EnableParameter_AllowWeaponizedVehicles)) SpawnWeaponizedVehicles = oldGM.SpawnWeaponizedVehicles;
-            if (ShouldBeEnabled(EnableParameter_AllowHelicopters)) SpawnHelicopters = oldGM.SpawnHelicopters;
-            if (ShouldBeEnabled(EnableParameter_FogOfWar)) FogOfWar = oldGM.FogOfWar;
+            if (EnableParameter_UnitCountMultiplier) UnitCountMultiplier = oldGM.UnitCountMultiplier;
+            if (EnableParameter_AllowVehicles) SpawnVehicles = oldGM.SpawnVehicles;
+            if (EnableParameter_AllowWeaponizedVehicles) SpawnWeaponizedVehicles = oldGM.SpawnWeaponizedVehicles;
+            if (EnableParameter_AllowHelicopters) SpawnHelicopters = oldGM.SpawnHelicopters;
+            if (EnableParameter_FogOfWar) FogOfWar = oldGM.FogOfWar;
         }
 
         /// <summary>
@@ -393,23 +392,11 @@ namespace GangWarSandbox.Gamemodes
         }
 
         /// <summary>
-        /// Listener for when the player dies. Used to determine custom effects during battle when the player dies. Executes *AFTER* the player respawns.
+        /// Listener for when the player dies. Used to determine custom effects during battle when the player dies.
         /// </summary>
         public virtual void OnPlayerDeath(int gameTime)
         {
 
-        }
-
-        public static bool ShouldBeTicked(GamemodeBool b)
-        {
-            if (b == GamemodeBool.PlayerChoice || b == GamemodeBool.True) return true;
-            else return false;
-        }
-
-        public static bool ShouldBeEnabled(GamemodeBool b)
-        {
-            if (b == GamemodeBool.PlayerChoice) return true;
-            else return false;
         }
 
         protected static int GetMemberCountByType(Team team, List<Squad> list)

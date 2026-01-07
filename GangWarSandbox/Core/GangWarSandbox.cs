@@ -253,8 +253,7 @@ namespace GangWarSandbox
         {
             if (IsBattleRunning || !CurrentGamemode.CanStartBattle()) return;
 
-            ResetPlayerRelations();
-            
+            CurrentGamemode.SetRelationships();
 
             for (int i = 0; i < CapturePoints.Count; i++)
             {

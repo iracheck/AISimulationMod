@@ -115,7 +115,7 @@ namespace GangWarSandbox
                 menu.Enabled = !Mod.IsBattleRunning;
             }
 
-            if (Gamemode.ShouldBeEnabled(gm.EnableParameter_Spawnpoints) || Gamemode.ShouldBeEnabled(gm.EnableParameter_CapturePoints))
+            if (gm.EnableParameter_Spawnpoints || gm.EnableParameter_CapturePoints)
             {
                 var menu = MainMenu.AddSubMenu(CreatePointSetupMenu(gm, oldGM));
                 menu.Enabled = !Mod.IsBattleRunning;
@@ -261,11 +261,11 @@ namespace GangWarSandbox
             allowWeaponizedVehicles.CheckboxChanged += (item, args) => { gm.SpawnWeaponizedVehicles = allowWeaponizedVehicles.Checked; };
             allowHelicopters.CheckboxChanged += (item, args) => { gm.SpawnHelicopters = allowHelicopters.Checked; };
 
-            unitCountMultiplier.Enabled = Gamemode.ShouldBeEnabled(gm.EnableParameter_UnitCountMultiplier);
-            fogOfWar.Enabled = Gamemode.ShouldBeEnabled(gm.EnableParameter_FogOfWar);
-            allowVehicles.Enabled = Gamemode.ShouldBeEnabled(gm.EnableParameter_AllowVehicles);
-            allowWeaponizedVehicles.Enabled = Gamemode.ShouldBeEnabled(gm.EnableParameter_AllowWeaponizedVehicles);
-            allowHelicopters.Enabled = Gamemode.ShouldBeEnabled(gm.EnableParameter_AllowHelicopters);
+            unitCountMultiplier.Enabled = gm.EnableParameter_UnitCountMultiplier;
+            fogOfWar.Enabled = gm.EnableParameter_FogOfWar;
+            allowVehicles.Enabled = gm.EnableParameter_AllowVehicles;
+            allowWeaponizedVehicles.Enabled = gm.EnableParameter_AllowWeaponizedVehicles;
+            allowHelicopters.Enabled = gm.EnableParameter_AllowHelicopters;
 
             BattleOptionsMenu.Add(unitCountMultiplier);
 
@@ -289,12 +289,12 @@ namespace GangWarSandbox
                 int index = i;
                 var addSpawnpoint = new NativeItem($"Add Spawnpoint - Team {i + 1}", $"Adds a spawnpoint for team {i + 1} at your current location, or at your waypoint if you have one.");
                 addSpawnpoint.Activated += (item, args) => Mod.AddSpawnpoint(index);
-                addSpawnpoint.Enabled = Gamemode.ShouldBeEnabled(gm.EnableParameter_Spawnpoints);
+                addSpawnpoint.Enabled = gm.EnableParameter_Spawnpoints;
                 SpawnpointMenu.Add(addSpawnpoint);
             }
 
             var addCapPt = new NativeItem("Add Capture Point", "Adds a capture point at your current location, or at your waypoint if you have one.");
-            addCapPt.Enabled = Gamemode.ShouldBeEnabled(gm.EnableParameter_CapturePoints);
+            addCapPt.Enabled = gm.EnableParameter_CapturePoints;
             addCapPt.Activated += (item, args) => Mod.AddCapturePoint();
 
             var clear = new NativeItem("Clear All Points", "Clears all spawnpoints on the map. There is no undo button for this action.");

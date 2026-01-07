@@ -1,6 +1,7 @@
 ﻿// GTA Gang War Sandbox - LemonUI Version
 // Requirements:
 // - ScriptHookVDotNet v3
+// - ScriptHookV
 // - LemonUI.SHVDN3
 
 using GangWarSandbox;

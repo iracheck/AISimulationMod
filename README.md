@@ -12,7 +12,7 @@ While it started as an AI simulation project just for fun, the core of the work 
 
 ### Tech Stack
 Language: C#, .NET 4.8 <br>
-Other: ScriptHookV, ScriptHookVDotNet, Native Library, LemonUI
+Frameworks: ScriptHookV, ScriptHookVDotNet, Native Library, LemonUI
 
 ### Technical Features
 - Modular gamemode architecture with abstract base class (`Gamemode.cs`)

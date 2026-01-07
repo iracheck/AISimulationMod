@@ -57,7 +57,7 @@ public class ExampleGamemode : Gamemode
 ```
 
 ### Overrides
-Beyond that, you must override the existing functions within the `Gamemode` class in order to implement new functionalities. The base class already includes a few important helpers, for example setting starting relationships or helping the AI recieve targets. However, in order to create something that is actually unique, there are a couple of very important methods that you might want to touch (and plenty more that you can discover for yourself, pending a real guide on this):
+Beyond that, you must override the existing functions within the `Gamemode` class in order to implement new functionalities. The base class already includes a few important helpers, for example setting starting relationships or helping the AI recieve targets. However, in order to create something that is actually unique, there are a couple of very important methods that you might want to touch:
 - `OnTick` is called 30 times per second
 - `OnTickBattleRunning` is the same as above, but it only happens when the game is started
 - `OnPlayerDeath` occurs when the player dies.
@@ -65,6 +65,7 @@ Beyond that, you must override the existing functions within the `Gamemode` clas
 - `TerminateGamemode` is called as soon as a different gamemode is selected by the user
 - `OnStart` is called as soon as the start button is pressed
 - `OnEnd` is called as soon as the end button is pressed
+There are a few more of these, but pending proper documentation you can discover those yourself! 
 
 ### Parameters
 These are the parameters that the user may (or may not, if thats what you want) modify. By default, all parameters are avaliable to be modified, but you can disable them with the "EnableParameter_[x]" field. 

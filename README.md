@@ -1,16 +1,26 @@
 # Dynamic AI Simulation "GangWarSandbox"
 **[Download on NexusMods](https://www.nexusmods.com/gta5/mods/1430)**
 
-> Started as a latent research interest in optimization & AI, GangWarSandbox is now a fully-fledged combat utility for Grand Theft Auto V.
-> Light development resumed as of December 2026, now open-source. 
-
 Create your battlefield anywhere on the map and watch the AI fight for control of the map, then join in yourself for extra chaos.. <br>
+
+While it started as an AI simulation project just for fun, the core of the work focuses on:
+
+- **API & architecture design:** abstract classes, lifecycle hooks, and plugin-style extensions for gamemodes.
+- **State machines & event-driven logic:** squads, threat levels, and game progression.
+- **Resource & configuration management:** dynamic squad/vehicle spawning, capture points, and modular configuration.
+- **Library integration:** leveraging LemonUI and SHVDN for in-game UI and scripting without reinventing the wheel.
 
 ### Tech Stack
 Language: C#, .NET 4.8 <br>
 Other: ScriptHookV, ScriptHookVDotNet, Native Library, LemonUI
 
-### Technical Achievements
+### Technical Features
+- Modular gamemode architecture with abstract base class (`Gamemode.cs`)
+- Customizable rulesets via overrideable hooks (e.g., `OnStart`, `OnTickGameRunning`, `OnEnd`) The "gamemode" system
+- Dynamic state management (threat levels, squad spawning, scoring systems)
+- Extensible squad AI
+- Integration with LemonUI for dynamic in-game configuration menus
+- Minimal system performance impact-- mod's update loop (30Hz) runs significantly faster than the game-- costing only ~1.5 ms at 60 frames per second
 
 ### Dependencies
 - ScriptHookV

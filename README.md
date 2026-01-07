@@ -33,7 +33,7 @@ Other: ScriptHookV, ScriptHookVDotNet, Native Library, LemonUI
 - Run the game and use F10 to begin
 
 ### Open Source Information
-See README. Generally, I don't have time to work on this anymore due to university so feel free to make modifications and publish them, as long as you don't claim my work as your own.
+See LICENSE.md. Generally, I don't have time to work on this anymore due to university so feel free to make modifications and publish them, as long as you don't claim my work as your own.
 
 ## Gamemode API
 This repo also features an extensible API in the form of the "Gamemode" system. Gamemodes can selectively control AI behavior, squad targets, spawning rules, and user-configurable settings while reusing the core simulation engine, and without overwriting any code outside of the gamemode structure. It's still a WIP, but its totally functional.

@@ -3,19 +3,14 @@
 
 Create your battlefield anywhere on the map and watch the AI fight for control of the map, then join in yourself for extra chaos.. <br>
 
-While it started as an AI simulation project just for fun, the core of the work focuses on:
-
-- **API & architecture design:** abstract classes, lifecycle hooks, and plugin-style extensions for gamemodes.
-- **State machines & event-driven logic:** squads, threat levels, and game progression.
-- **Resource & configuration management:** dynamic squad/vehicle spawning, capture points, and modular configuration.
-- **Library integration:** leveraging LemonUI and SHVDN for in-game UI and scripting without reinventing the wheel.
+While this started as a learning project to explore AI, state management, and modular game architectures, GTA5 was used as a foundation so I could focus on experimenting with AI systems and game logic rather than reinventing core game mechanics. It also has ended up surpassing that original goal by quite a bit, so certain elements (e.g. the 'master' class which serves as the entrypoint) are due a rewrite, especially since implementing 
 
 ### Tech Stack
-Language: C#, .NET 4.8 <br>
-Frameworks: ScriptHookV, ScriptHookVDotNet, Native Library, LemonUI
+**Language:** C#, .NET 4.8 <br>
+**Frameworks:** ScriptHookV, ScriptHookVDotNet, Native Library, LemonUI
 
 ### Technical Features
-- Modular gamemode architecture with abstract base class (`Gamemode.cs`)
+- Modular gamemode architecture with abstract base class `Gamemode.cs`
 - Customizable rulesets via overrideable hooks (e.g., `OnStart`, `OnTickGameRunning`, `OnEnd`) The "gamemode" system
 - Dynamic state management (threat levels, squad spawning, scoring systems)
 - Extensible squad AI

@@ -30,6 +30,9 @@ While this started as a learning project to explore AI, state management, and mo
 ### Open Source Information
 See LICENSE.md. Generally, I don't have time to work on this anymore due to university so feel free to make modifications and publish them, as long as you don't claim my work as your own.
 
+### Future Plans
+This is super messy, so the next plan is to make it cleaner and more readable. Everything works, so refactoring is the logical next step.
+
 ## Gamemode API
 This repo also features an extensible API in the form of the "Gamemode" system. Gamemodes can selectively control AI behavior, squad targets, spawning rules, and user-configurable settings while reusing the core simulation engine, and without overwriting any code outside of the gamemode structure. It's still a WIP, but its totally functional.
 

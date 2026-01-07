@@ -1,5 +1,5 @@
-# Dynamic AI Simulation "GangWarSandbox"
-**[Download on NexusMods](https://www.nexusmods.com/gta5/mods/1430)** (200+ downloads!)
+# Dynamic Simulation Mod
+**[Download "GangWarSandbox" on NexusMods](https://www.nexusmods.com/gta5/mods/1430)** (200+ downloads!)
 
 Create your battlefield anywhere on the map and watch the AI fight for control of the map, then join in yourself for extra chaos.. <br>
 

@@ -45,12 +45,14 @@ namespace GangWarSandbox.Gamemodes
 
         public bool EnableParameter_Spawnpoints { get; set; } = true;
         public bool EnableParameter_CapturePoints { get; set; } = true;
+        public bool EnableParameter_BlockPoliceResponse { get; set; } = true;
 
         // These are the users actual choices
         public bool SpawnVehicles { get; set; } = true;
         public bool SpawnWeaponizedVehicles { get; set; } = false;
         public bool SpawnHelicopters { get; set; } = false;
         public bool FogOfWar { get; set; } = true;
+        public bool BlockPoliceResponse { get; set; } = true;
 
         /// <summary>
         /// This value directly multiplies the maximum number of units for each faction on the battlefield. It can be modified by the user in the gamemode menu, or by the gamemode itself.

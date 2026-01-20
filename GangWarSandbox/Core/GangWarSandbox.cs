@@ -105,8 +105,6 @@ namespace GangWarSandbox
             Instance = this;
             CurrentGamemode = AvaliableGamemodes[0];
 
-            Logger.Log("GangWarSandbox loaded using build " + GWSMeta.Version + ", built on date: " + GWSMeta.BuildDate.ToString() + ".\n", "META");
-
             // Ensure valid directories exist on startup
             ModFiles.EnsureDirectoriesExist();
 
@@ -118,6 +116,7 @@ namespace GangWarSandbox
             if (Factions.Count == 0)
             {
                 NotificationHandler.Send("~r~Warning: ~w~GangWarSandbox requires at least one faction in order to load. Please create one, or use one of the default ones provided (redownload the mod if necessary).");
+                Logger.Log("The mod failed to load because there are no faction definitions. Please redownload the mod files, or create your own faction definition to play.");
                 return;
             }
             else if (Factions.Count == 1)
@@ -132,6 +131,8 @@ namespace GangWarSandbox
             {
                 NotificationHandler.Send("GangWarSandbox loaded. Press " + GWSettings.OpenMenuKeybind + " to begin!");
             }
+
+            Logger.Log("GangWarSandbox loaded using build " + GWSMeta.Version + ", built on date: " + GWSMeta.BuildDate.ToString() + ".\n", "META");
 
             Tick += OnTick;
             KeyDown += OnKeyDown;
@@ -171,12 +172,11 @@ namespace GangWarSandbox
                 int GameTime = Game.GameTime;
 
                 // Essentially "fakes" that the player is wanted while battles are occuring. This allows the player to use weapons inside their safehouses AND prevents the player from swapping targets.
-                Game.Player.DispatchsCops = false; // disable cop dispatches
                 Function.Call(Hash.HIDE_HUD_COMPONENT_THIS_FRAME, 1);
                 Function.Call(Hash.SET_BLOCK_WANTED_FLASH, true);
                 Game.Player.WantedLevel = 1;
 
-                Function.Call(Hash.CLEAR_AREA_OF_COPS, Player.Position.X, Player.Position.Y, Player.Position.Z, 500f);
+                if (CurrentGamemode.BlockPoliceResponse) Function.Call(Hash.CLEAR_AREA_OF_COPS, Player.Position.X, Player.Position.Y, Player.Position.Z, 500f);
 
                 if (Player.IsDead)
                 {
@@ -274,7 +274,7 @@ namespace GangWarSandbox
 
             Game.Player.WantedLevel = 0; // Reset wanted level
             IsBattleRunning = true;
-            Function.Call(Hash.SET_POLICE_IGNORE_PLAYER, Player.Handle, true);
+            Function.Call(Hash.SET_POLICE_IGNORE_PLAYER, Player.Handle, CurrentGamemode.BlockPoliceResponse);
 
         }
 

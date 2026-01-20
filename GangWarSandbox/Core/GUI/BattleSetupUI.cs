@@ -247,6 +247,7 @@ namespace GangWarSandbox
             var allowHelicopters = new NativeCheckboxItem("Helicopters", "[EXPERIMENTAL] Allow helicopters to be used in the battle.\n\n" +
                 "Due to early access, their modified AI has not been fully completed. Helicopters harm the flow of the battle, so do not expect fluid results.", gm.SpawnHelicopters);
             var fogOfWar = new NativeCheckboxItem("Fog of War", "Fog of war adds an area in which you cannot see enemies on the minimap. Note that fog of war does not disable fading blips from dying npcs.", gm.FogOfWar);
+            var policeResponse = new NativeCheckboxItem("Police Response", "Allow the police to respond to your battles. This does not implement new behaviors, rather it disables my system preventing them from arriving.", gm.BlockPoliceResponse);
 
             unitCountMultiplier.Description = "Current Multiplier: " + Mod.CurrentGamemode.UnitCountMultiplier + "x";
             unitCountMultiplier.ValueChanged += (item, args) =>
@@ -257,22 +258,27 @@ namespace GangWarSandbox
             };
 
             fogOfWar.CheckboxChanged += (item, args) => { gm.FogOfWar = fogOfWar.Checked; };
+            policeResponse.CheckboxChanged += (item, args) => { gm.BlockPoliceResponse = policeResponse.Checked; };
             allowVehicles.CheckboxChanged += (item, args) => { gm.SpawnVehicles = allowVehicles.Checked; };
             allowWeaponizedVehicles.CheckboxChanged += (item, args) => { gm.SpawnWeaponizedVehicles = allowWeaponizedVehicles.Checked; };
             allowHelicopters.CheckboxChanged += (item, args) => { gm.SpawnHelicopters = allowHelicopters.Checked; };
 
             unitCountMultiplier.Enabled = gm.EnableParameter_UnitCountMultiplier;
+            policeResponse.Enabled = gm.EnableParameter_BlockPoliceResponse;
             fogOfWar.Enabled = gm.EnableParameter_FogOfWar;
             allowVehicles.Enabled = gm.EnableParameter_AllowVehicles;
             allowWeaponizedVehicles.Enabled = gm.EnableParameter_AllowWeaponizedVehicles;
             allowHelicopters.Enabled = gm.EnableParameter_AllowHelicopters;
 
-            BattleOptionsMenu.Add(unitCountMultiplier);
 
+            BattleOptionsMenu.Add(unitCountMultiplier);
+            BattleOptionsMenu.Add(policeResponse);
             BattleOptionsMenu.Add(fogOfWar);
             BattleOptionsMenu.Add(allowVehicles);
+
             BattleOptionsMenu.Add(allowWeaponizedVehicles);
             BattleOptionsMenu.Add(allowHelicopters);
+            
 
             return BattleOptionsMenu;
         }

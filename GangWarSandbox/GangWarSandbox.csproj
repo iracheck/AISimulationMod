@@ -32,9 +32,11 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="LemonUI.SHVDN3, Version=1.9.4.0, Culture=neutral, processorArchitecture=AMD64">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>lib\LemonUI.SHVDN3.dll</HintPath>
+    <Reference Include="LemonUI.SHVDN3, Version=2.2.0.0, Culture=neutral, processorArchitecture=AMD64">
+      <HintPath>..\packages\LemonUI.SHVDN3.2.2.0\lib\net48\LemonUI.SHVDN3.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.13.0.4\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="ScriptHookVDotNet3, Version=3.6.0.0, Culture=neutral, processorArchitecture=AMD64">
       <HintPath>..\packages\ScriptHookVDotNet3.3.6.0\lib\net48\ScriptHookVDotNet3.dll</HintPath>
@@ -59,6 +61,8 @@
     <Compile Include="Core\Backend\File System\ConfigParser\ConfigParser.Helpers.cs" />
     <Compile Include="Core\Backend\File System\ConfigParser\ConfigParser.VehicleSet.cs" />
     <Compile Include="Core\Backend\File System\ModFiles.cs" />
+    <Compile Include="Core\Backend\File System\SaveData\PointSaveData.cs" />
+    <Compile Include="Core\Backend\File System\SaveData\PointSaveLoader.cs" />
     <Compile Include="Core\Backend\Gamemodes\Gamemode.cs" />
     <Compile Include="Core\Backend\Gamemodes\InfiniteBattle.cs" />
     <Compile Include="Core\Backend\Gamemodes\Survival.cs" />

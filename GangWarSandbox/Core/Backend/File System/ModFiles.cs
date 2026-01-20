@@ -23,10 +23,9 @@ namespace GangWarSandbox.Core
             Directory.CreateDirectory(MOD_PATH);
             Directory.CreateDirectory(VEHICLESET_PATH);
             Directory.CreateDirectory(FACTIONS_PATH);
-            //Directory.CreateDirectory(SAVEDATA_PATH);
+            Directory.CreateDirectory(SAVEDATA_PATH);
 
             File.Create(LOG_FILE_PATH).Close(); // Ensure the log file exists
-            //File.Create(SURVIVAL_SAVE_PATH).Close(); // Create the survival path
 
             // Ensure the log file is empty at mod start
             if (File.Exists(LOG_FILE_PATH))

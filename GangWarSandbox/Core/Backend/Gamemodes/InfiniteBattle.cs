@@ -27,6 +27,11 @@ namespace GangWarSandbox.Gamemodes
         int deathTime;
         const int TIME_TO_WAIT_AFTER_DEATH = 1500; // in ms
 
+        public override List<NativeMenu> ConstructGamemodeMenus()
+        {
+            return base.ConstructGamemodeMenus();
+        }
+        
         public override void OnTickGameRunning()
         {
 

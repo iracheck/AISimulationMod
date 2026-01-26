@@ -91,7 +91,7 @@ namespace GangWarSandbox.Gamemodes
         // For anyone looking to add new gamemodes-- these are all the methods avaliable to be implemented in adding your own logic.
 
         /// <summary>
-        /// This allows you to construct one or more LemonUI menu for the gamemode, which appears after the first option in the list (below the "Gamemode.") It will appear as "Gamemode Options." See LemonUI documentation for more help.
+        /// This allows you to construct one or more LemonUI menu for the gamemode, which appears after the first option in the list (below the "Gamemode.") See LemonUI documentation for more help.
         /// </summary>
         public virtual List<NativeMenu> ConstructGamemodeMenus()
         {

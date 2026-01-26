@@ -22,7 +22,7 @@ namespace GangWarSandbox
             Helicopter,
         }
 
-        public Dictionary<Type, List<Model>> VehicleTypes => new Dictionary<Type, List<Model>>()
+        private Dictionary<Type, List<Model>> VehicleTypes => new Dictionary<Type, List<Model>>()
         {
             { Type.Vehicle, Vehicles },
             { Type.WeaponizedVehicle, WeaponizedVehicles },

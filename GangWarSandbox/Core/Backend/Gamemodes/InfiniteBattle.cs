@@ -11,6 +11,9 @@ using System.Text;
 using System.Threading.Tasks;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
+using LemonUI;
+using LemonUI.Menus;
+
 namespace GangWarSandbox.Gamemodes
 {
     /// <summary>
@@ -29,7 +32,9 @@ namespace GangWarSandbox.Gamemodes
 
         public override List<NativeMenu> ConstructGamemodeMenus()
         {
-            return base.ConstructGamemodeMenus();
+            var LoadMenu = new NativeMenu("Load Save", "LOAD SAVE");
+
+            return new List<NativeMenu> { LoadMenu }; 
         }
         
         public override void OnTickGameRunning()
@@ -43,7 +48,7 @@ namespace GangWarSandbox.Gamemodes
                 deathTime = Game.GameTime;
                 Vector3 spawn = Mod.Teams[0].SpawnPoints[0];
 
-                Screen.FadeOut(250);
+                GTA.UI.Screen.FadeOut(250);
 
                 // make sure they dont ACTUALLY die
                 Game.Player.Character.Health = 200;
@@ -69,7 +74,7 @@ namespace GangWarSandbox.Gamemodes
                 Game.Player.Character.Health = 200;
                 Game.Player.IsInvincible = false;
 
-                Screen.FadeIn(800);
+                GTA.UI.Screen.FadeIn(800);
             }
         }
 

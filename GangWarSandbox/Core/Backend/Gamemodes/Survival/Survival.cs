@@ -174,6 +174,7 @@ namespace GangWarSandbox.Gamemodes
             //var missions = new NativeCheckboxItem("Missions", "Missions are a set of objectives that can be completed to earn extra points, or weapons/ammo/vehicles.", false);
             //missions.Enabled = false; // Missions are not implemented yet
 
+            gamemodeMenu.Add(curve);
             gamemodeMenu.Add(level1Enemy);
             gamemodeMenu.Add(level2Enemy);
             gamemodeMenu.Add(level3Enemy);

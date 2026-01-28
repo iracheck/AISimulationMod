@@ -133,11 +133,8 @@ namespace GangWarSandbox
 
             var stop = new NativeItem("Stop Battle", "Stop the battle and automatically clean up all peds and vehicles.");
 
-            var reload = new NativeItem("Reload Config", "Reload all configuration files. This includes Factions, VehicleSets, and the base Configuration file. Note that some of your chosen settings may be lost.");
-
             start.Enabled = Mod.IsBattleRunning == false;
             stop.Enabled = Mod.IsBattleRunning == true;
-            reload.Enabled = Mod.IsBattleRunning == false;
 
             start.Activated += (item, args) =>
             {
@@ -151,18 +148,25 @@ namespace GangWarSandbox
                 RebuildMenu();
             };
 
-            reload.Activated += (item, args) =>
+            if (Mod.DEBUG)
             {
-                Mod.StopBattle(); // just in case
-                ConfigParser.ReloadAll();
+                var reload = new NativeItem("Reload Config", "Reload all configuration files. This includes Factions, VehicleSets, and the base Configuration file. Note that some of your chosen settings may be lost.");
 
-                RebuildMenu();
-            };
+                reload.Enabled = Mod.IsBattleRunning == false;
+
+                reload.Activated += (item, args) =>
+                {
+                    Mod.StopBattle(); // just in case
+                    ConfigParser.ReloadAll();
+
+                    RebuildMenu();
+                };
+
+                MainMenu.Add(reload);
+            }
 
             MainMenu.Add(start);
             MainMenu.Add(stop);
-
-            if (Mod.DEBUG) MainMenu.Add(reload);
 
             MenuPool.RefreshAll();
         }

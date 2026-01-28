@@ -1,5 +1,4 @@
 ﻿using GangWarSandbox.Utilities;
-using GTA.Math;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -15,17 +14,11 @@ namespace GangWarSandbox.Core.Backend.File_System.SaveData
         string savePath = ModFiles.SAVEDATA_PATH + "/InfiniteBattle/";
         List<PointSaveData> SavedData;
 
-        GangWarSandbox Instance = GangWarSandbox.Instance;
-
-        /// <summary>
-        /// Create the save data using the information currently within the world space. This is how its going to be used most of the time.
-        /// </summary>
-        /// <returns></returns>
         private PointSaveData CreateDataFromWorld()
         {
             PointSaveData data = new PointSaveData();
 
-            foreach (var capturePoint in Instance.CapturePoints)
+            foreach (var capturePoint in GangWarSandbox.Instance.CapturePoints)
             {
                 if (capturePoint != null) data.CapturePoints.Add(capturePoint.Position);
             }
@@ -63,24 +56,6 @@ namespace GangWarSandbox.Core.Backend.File_System.SaveData
         public void Load(string filePath)
         {
             SavedData = JsonConvert.DeserializeObject<List<PointSaveData>>(filePath);
-        }
-
-        public void InitializeIntoWorld(PointSaveData data)
-        {
-            foreach (var capturePoint in data.CapturePoints)
-            {
-                CapturePoint point = new CapturePoint(capturePoint);
-
-                Instance.CapturePoints.Add(point);
-            }
-
-            foreach (var teamIndex in data.SpawnPoints.Keys)
-            {
-                foreach (var point in data.SpawnPoints[teamIndex])
-                {
-                    Instance.Teams[teamIndex].AddSpawnpoint(point);
-                }
-            }
         }
     }
 }

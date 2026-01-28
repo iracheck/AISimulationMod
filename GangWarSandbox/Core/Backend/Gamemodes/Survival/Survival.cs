@@ -69,9 +69,13 @@ namespace GangWarSandbox.Gamemodes
         {
             SpawnMethod = GamemodeSpawnMethod.Random;
 
-            EnableParameter_AllowWeaponizedVehicles = false;
+            EnableParameter_AllowWeaponizedVehicles = true;
             EnableParameter_AllowVehicles = true;
             EnableParameter_AllowHelicopters = true;
+
+            SpawnHelicopters = true;
+            SpawnWeaponizedVehicles = true;
+            SpawnVehicles = true;
      
 
             EnableParameter_FogOfWar = true;

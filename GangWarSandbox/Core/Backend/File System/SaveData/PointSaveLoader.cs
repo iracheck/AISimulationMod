@@ -32,6 +32,8 @@ namespace GangWarSandbox.Core.Backend.File_System.SaveData
 
             foreach (var t in Instance.Teams)
             {
+                data.Teams.Add(t.Name);
+
                 foreach (var pt in t.SpawnPoints)
                 {
                     data.SpawnPoints[t.TeamIndex].Add(pt);

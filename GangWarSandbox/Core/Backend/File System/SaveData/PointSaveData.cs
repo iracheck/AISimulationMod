@@ -15,5 +15,6 @@ namespace GangWarSandbox.Core.Backend.File_System.SaveData
 
         public Dictionary<int, List<Vector3>> SpawnPoints = new Dictionary<int, List<Vector3>>();
         public List<Vector3> CapturePoints = new List<Vector3>();
+        public List<string> Teams = new List<string>();
     }
 }

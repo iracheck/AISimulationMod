@@ -10,6 +10,7 @@ using LemonUI.Menus;
 using GTA.Native;
 using GTA.Math;
 using GangWarSandbox.Utilities;
+using GangWarSandbox.Gamemodes.Survival;
 
 namespace GangWarSandbox.Gamemodes
 {
@@ -23,7 +24,6 @@ namespace GangWarSandbox.Gamemodes
         bool HealOnKill = true;
 
         // Gamemode States
-        int CurrentThreatLevel; // Current level of the survival gamemode, used for difficulty scaling
 
         // Each threat level, and how it scales for the player.
         // Each numerical index represents a value
@@ -37,26 +37,8 @@ namespace GangWarSandbox.Gamemodes
         // Note that the max number of squads is a global value. This means that you could have 15 vehicle squads, 5 weaponized vehicles squads, but only 15 max squads, and 
         // it will be a mixture of those two types, but not more than 15 total squads.
         // Any left over slots will be filled with infantry squads, as the default squad type.
-        List<int[]> ThreatLevelSettings = new List<int[]>
-        {
-            // max squads(total) (0) - vehicles (1) - weaponized vehicles (2) - helicopters (3) - max faction tier[1-3] (4) - threat weight (5)
-            new int[] { 2, 1, 0, 0, 1, 0 }, // 1
-            new int[] { 3, 2, 0, 0, 1, 80 }, // 2
-            new int[] { 4, 2, 0, 0, 1, 400 }, // 3
-            new int[] { 5, 3, 0, 1, 1, 900 }, // 4
-            new int[] { 6, 4, 0, 1, 1, 1800 }, // 5
-            new int[] { 6, 4, 0, 1, 2, 2700 }, // 6
-            new int[] { 6, 3, 0, 1, 2, 3900 }, // 7
-            new int[] { 7, 3, 1, 1, 2, 5300 }, // 8
-            new int[] { 7, 4, 1, 1, 2, 6900 }, // 9
-            new int[] { 8, 3, 1, 1, 3, 8200 }, // 10
-            new int[] { 8, 3, 1, 2, 3, 9500 }, // 11
-            new int[] { 9, 3, 1, 2, 3, 11500 }, // 12
-            new int[] { 9, 4, 1, 2, 3, 14000 }, // 13
-            new int[] { 10, 4, 1, 2, 3, 18000 }, // 14
-            new int[] { 11, 4, 2, 3, 3, 24000 }, // 15
-            new int[] { 12, 5, 3, 3, 3, 40000 }, // 16 - Endgame
-        };
+        ThreatCurve ThreatCurve;
+        int CurrentThreatLevel; // Current level of the survival gamemode, used for difficulty scaling
 
         int Combo;
         int ComboLastTime;
@@ -321,11 +303,11 @@ namespace GangWarSandbox.Gamemodes
         {
             if (Mod.Teams.IndexOf(team) == 0) return false; // team index 0 "bodyguards" not implemented
             // team index 1 ("tier 1 enemy") can always spawn
-            if (Mod.Teams.IndexOf(team) == 2 && ThreatLevelSettings[CurrentThreatLevel][4] < 2) return false; // team index 2 ("tier 2 enemy") can only spawn if the threat level is at least 2
-            if (Mod.Teams.IndexOf(team) == 3 && ThreatLevelSettings[CurrentThreatLevel][4] < 3) return false; // team index 3 ("tier 3 enemy") can only spawn if the threat level is at least 3
+            if (Mod.Teams.IndexOf(team) == 2 && ThreatCurve.Get(CurrentThreatLevel).MaxFactionTier < 2) return false; // team index 2 ("tier 2 enemy") can only spawn if the threat level is at least 2
+            if (Mod.Teams.IndexOf(team) == 3 && ThreatCurve.Get(CurrentThreatLevel).MaxFactionTier < 3) return false; // team index 3 ("tier 3 enemy") can only spawn if the threat level is at least 3
 
             int allSquadsCount = team.Squads.Count + team.VehicleSquads.Count + team.WeaponizedVehicleSquads.Count + team.HelicopterSquads.Count;
-            if (allSquadsCount >= ThreatLevelSettings[CurrentThreatLevel][0])
+            if (allSquadsCount >= ThreatCurve.Get(CurrentThreatLevel).MaxTotalSquads)
             {
                 return false;
             }
@@ -337,7 +319,7 @@ namespace GangWarSandbox.Gamemodes
             // If the player is in a vehicle, always spawn a vehicle squad. NOTE: This will *try* to spawn weaponized vehicle & helicopter squads first.
             if (Game.Player.Character.IsInVehicle()) return true;
 
-            int maxForTeam = ThreatLevelSettings[CurrentThreatLevel][1] / ThreatLevelSettings[CurrentThreatLevel][4];
+            int maxForTeam = ThreatCurve.Get(CurrentThreatLevel).VehicleSquads / ThreatCurve.Get(CurrentThreatLevel).MaxTotalSquads;
             if (team.VehicleSquads.Count >= maxForTeam)
             {
                 return false; 
@@ -347,7 +329,7 @@ namespace GangWarSandbox.Gamemodes
 
         public override bool ShouldSpawnWeaponizedVehicleSquad(Team team)
         {
-            int maxForTeam = ThreatLevelSettings[CurrentThreatLevel][2] / ThreatLevelSettings[CurrentThreatLevel][4];
+            int maxForTeam = ThreatCurve.Get(CurrentThreatLevel).WeaponizedVehicleSquads / ThreatCurve.Get(CurrentThreatLevel).MaxTotalSquads;
             if (team.WeaponizedVehicleSquads.Count >= maxForTeam)
             {
                 return false; 
@@ -357,7 +339,7 @@ namespace GangWarSandbox.Gamemodes
 
         public override bool ShouldSpawnHelicopterSquad(Team team)
         {
-            int maxForTeam = ThreatLevelSettings[CurrentThreatLevel][3] / ThreatLevelSettings[CurrentThreatLevel][4];
+            int maxForTeam = ThreatCurve.Get(CurrentThreatLevel).HelicopterSquads / ThreatCurve.Get(CurrentThreatLevel).MaxTotalSquads;
             if (team.HelicopterSquads.Count >= maxForTeam)
             {
                 return false;
@@ -449,7 +431,7 @@ namespace GangWarSandbox.Gamemodes
 
             double threatWeight = (TimeElapsed / 1000) + (PlayerScore * 0.2);
 
-            if (CurrentThreatLevel < ThreatLevelSettings.Count - 1 && threatWeight > ThreatLevelSettings[CurrentThreatLevel + 1][5])
+            if (CurrentThreatLevel < ThreatCurve.ThreatLevels.Count - 1 && threatWeight > ThreatCurve.Get(CurrentThreatLevel + 1).ThreatWeight)
             {
                 CurrentThreatLevel++;
                 Logger.LogDebug("Increased threat level: " + CurrentThreatLevel + " (weight: " + threatWeight + ")");

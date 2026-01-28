@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace GangWarSandbox.Gamemodes.Survival
 {
 
-    public abstract class CurveBase
+    public abstract class ThreatCurve
     {
         public abstract string Name { get; }
         public abstract string Description { get; }
@@ -16,12 +16,18 @@ namespace GangWarSandbox.Gamemodes.Survival
 
         public virtual List<ThreatLevel> ThreatLevels { get; } = new List<ThreatLevel>
         {
-            new ThreatLevel(1,1,0,0,1,0),
-
+            new ThreatLevel(1,1,0,0,1,0)
         };
+
+        public ThreatLevel Get(int level)
+        {
+            if (ThreatLevels.Count < level) return ThreatLevels.Last();
+            return ThreatLevels[level];
+        }
+
     }
 
-    public class NormalCurve : CurveBase
+    public class NormalCurve : ThreatCurve
     {
         public override string Name => "Normal";
         public override string Description => "A balanced curve where survival will gradually get harder over time, and there are no breaks. The game is trying to kill you.";
@@ -47,7 +53,7 @@ namespace GangWarSandbox.Gamemodes.Survival
         };
     }
 
-    public class EasyCurve : CurveBase
+    public class EasyCurve : ThreatCurve
     {
         public override string Name => "Easy";
         public override string Description => "An easier curve where you will recieve breaks inbetween difficult rounds, intending to give you time to reposition or regain health. \n\nYou will gain only 85% of the score from this curve.";
@@ -78,10 +84,10 @@ namespace GangWarSandbox.Gamemodes.Survival
         };
     }
 
-    public class QuickplayCurve : CurveBase
+    public class QuickplayCurve : ThreatCurve
     {
         public override string Name => "Quickplay";
-        public override string Description => "A very fast ramp up, Quickplay allows you to experience the endgame much earlier.\n\nYou will gain an EXTRA 5% score from this curve.";
+        public override string Description => "A very fast ramp up, Quickplay allows you to experience the endgame much earlier, but isnt as extreme as No Mercy.\n\nYou will gain an EXTRA 5% score from this curve.";
         public override float PointMultiplier => 1.05f;
         public override List<ThreatLevel> ThreatLevels => new List<ThreatLevel>
         {
@@ -90,14 +96,41 @@ namespace GangWarSandbox.Gamemodes.Survival
             new ThreatLevel(3,2,0,0,1,80), // 2
             new ThreatLevel(4,2,0,0,1,400), // 3
             new ThreatLevel(5,3,0,1,2,900), // 4
-            new ThreatLevel(5,4,0,1,2,1800), // 5
+            new ThreatLevel(6,4,0,1,2,1800), // 5
             new ThreatLevel(7,4,0,1,2,2700), // 6
             new ThreatLevel(7,3,0,1,2,3900), // 7
             new ThreatLevel(8,3,1,1,3,5300), // 8
-            new ThreatLevel(8,4,1,1,3,6900), // 9
-            new ThreatLevel(9,3,1,1,3,8200), // 10
-            new ThreatLevel(9,3,1,2,3,9500), // 11
-            new ThreatLevel(10,3,2,2,3,12000), // 12: Endgame
+            new ThreatLevel(9,4,1,1,3,6900), // 9
+            new ThreatLevel(10,3,1,1,3,8200), // 10
+            new ThreatLevel(11,3,1,2,3,9500), // 11
+            new ThreatLevel(12,3,2,2,3,12000), // 12: Endgame
+        };
+    }
+
+    public class NoMercyCurve : ThreatCurve
+    {
+        public override string Name => "No Mercy";
+        public override string Description => "An extremely difficult gamemode. It ramps up extremely quickly, and you will probably die. Note: There will be a LOT of enemies.\n\nYou will gain an extra 50% score from this curve.";
+        public override float PointMultiplier => 1.5f;
+        public override List<ThreatLevel> ThreatLevels => new List<ThreatLevel>
+        {
+            // max squads(total) (0) - vehicles (1) - weaponized vehicles (2) - helicopters (3) - max faction tier[1-3] (4) - threat weight (5)
+            new ThreatLevel(5,1,0,1,2,0), // 1
+            new ThreatLevel(6,2,0,1,2,80), // 2
+            new ThreatLevel(7,2,1,1,2,400), // 3
+            new ThreatLevel(7,3,1,1,3,900), // 4
+            new ThreatLevel(8,4,1,2,3,1800), // 5
+            new ThreatLevel(8,4,2,1,3,2700), // 6
+            new ThreatLevel(9,3,2,2,3,3600), // 7
+            new ThreatLevel(10,3,2,2,3,4900), // 8
+            new ThreatLevel(10,4,2,2,3,6200), // 9
+            new ThreatLevel(11,3,2,2,3,7900), // 10
+            new ThreatLevel(12,3,2,2,3,9200), // 11
+            new ThreatLevel(12,5,2,2,3,10000), // 12
+            new ThreatLevel(12,5,2,2,3,11500), // 13
+            new ThreatLevel(12,3,2,3,3,14000), // 14
+            new ThreatLevel(13,3,3,2,3,16000), // 15
+            new ThreatLevel(14,3,3,3,3,17000), // 16: Endgame
         };
     }
 }

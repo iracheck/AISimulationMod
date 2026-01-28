@@ -75,11 +75,6 @@
     <Compile Include="Core\Backend\Utilities\Helpers.cs" />
     <Compile Include="Core\Backend\Utilities\NotificationHandler.cs" />
     <Compile Include="Core\GUI\BattleSetupUI.cs" />
-    <Compile Include="Core\Peds\AI\Infantry\Autonomous\CaptureTask.cs" />
-    <Compile Include="Core\Peds\AI\Infantry\Autonomous\AttackNearbyTask.cs" />
-    <Compile Include="Core\Peds\AI\Infantry\Autonomous\MoveTask.cs" />
-    <Compile Include="Core\Peds\AI\SharedTasks\IdleTask.cs" />
-    <Compile Include="Core\Peds\AI\PedTask.cs" />
     <Compile Include="Core\Peds\Squad\Squad.Initialization.cs" />
     <Compile Include="Core\Peds\Squad\Squad.Helpers.cs" />
     <Compile Include="Core\World\MapElements\CapturePoint.cs" />

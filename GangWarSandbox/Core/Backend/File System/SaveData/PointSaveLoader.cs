@@ -13,12 +13,13 @@ namespace GangWarSandbox.Core.Backend.File_System.SaveData
     {
         string savePath = ModFiles.SAVEDATA_PATH + "/InfiniteBattle/";
         List<PointSaveData> SavedData;
+        GangWarSandbox Instance = GangWarSandbox.Instance;
 
         private PointSaveData CreateDataFromWorld()
         {
             PointSaveData data = new PointSaveData();
 
-            foreach (var capturePoint in GangWarSandbox.Instance.CapturePoints)
+            foreach (var capturePoint in Instance.CapturePoints)
             {
                 if (capturePoint != null) data.CapturePoints.Add(capturePoint.Position);
             }
@@ -56,6 +57,12 @@ namespace GangWarSandbox.Core.Backend.File_System.SaveData
         public void Load(string filePath)
         {
             SavedData = JsonConvert.DeserializeObject<List<PointSaveData>>(filePath);
+
+            // set teams
+            
+            // place spawnpoints
+
+            // place capturepoints
         }
     }
 }

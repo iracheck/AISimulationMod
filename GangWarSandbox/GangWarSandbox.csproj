@@ -65,8 +65,10 @@
     <Compile Include="Core\Backend\File System\SaveData\PointSaveLoader.cs" />
     <Compile Include="Core\Backend\Gamemodes\Gamemode.cs" />
     <Compile Include="Core\Backend\Gamemodes\InfiniteBattle.cs" />
-    <Compile Include="Core\Backend\Gamemodes\Survival.cs" />
+    <Compile Include="Core\Backend\Gamemodes\Survival\Survival.cs" />
     <Compile Include="Core\Backend\Gamemodes\Skirmish.cs" />
+    <Compile Include="Core\Backend\Gamemodes\Survival\ThreatLevelSettings\ThreatLevel.cs" />
+    <Compile Include="Core\Backend\Gamemodes\Survival\ThreatLevelSettings\ThreatCurves.cs" />
     <Compile Include="Core\Backend\Settings &amp; Session Data\GWSMeta.cs" />
     <Compile Include="Core\Backend\Settings &amp; Session Data\GWSettings.cs" />
     <Compile Include="Core\Backend\Utilities\Logger.cs" />

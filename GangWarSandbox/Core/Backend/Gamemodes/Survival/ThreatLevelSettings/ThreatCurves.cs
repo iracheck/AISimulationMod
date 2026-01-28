@@ -10,10 +10,16 @@ namespace GangWarSandbox.Gamemodes.Survival
 
     public abstract class ThreatCurve
     {
+        // the name that will be displayed in the UI
         public abstract string Name { get; }
+        // the description that will be displayed in the UI
         public abstract string Description { get; }
+        // the multiplier for all points gained
         public virtual float PointMultiplier { get; } = 1.0f;
 
+        // Note that the max number of squads is a global value. This means that you could have 15 vehicle squads, 5 weaponized vehicles squads, but only 15 max squads, and 
+        // it will be a mixture of those two types, but not more than 15 total squads.
+        // Any left over slots will be filled with infantry squads, as the default squad type.
         public virtual List<ThreatLevel> ThreatLevels { get; } = new List<ThreatLevel>
         {
             new ThreatLevel(1,1,0,0,1,0)

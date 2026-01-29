@@ -36,7 +36,8 @@ namespace GangWarSandbox.Peds
 
         // Lifecycle Control
         public bool JustSpawned = true;
-        public double LastUpdateTime = 0; // uses GameTime, the last time (in milliseconds since the game has been opened) in which the squad was updated
+        public int LastUpdateTime = 0; // uses GameTime, the last time (in milliseconds since the game has been opened) in which the squad was updated
+        public int LastStuckDetectionTime = 0; // uses GameTime, the last time (in milliseconds since the game has been opened) in which the squad was updated
         public int CyclesAlive = 0; // simply tracks for how many update cycles this squad has been active in the game -->
 
         // Members List
@@ -51,14 +52,10 @@ namespace GangWarSandbox.Peds
         // these are orders that come from the "Strategy AI" of each team
         public CapturePoint TargetPoint; // the location that the squad's role will be applied to-- variable
 
-        // Squad Stuck Timer-- if the squad leader is stuck for too long, it will try to move again
-        private int SquadLeaderStuckTicks = 0;
-
         // AI 
         public SquadRole Role;
         public SquadType Type;
         public SquadPersonality Personality;
-
 
         public Vehicle SquadVehicle = null;
         public bool IsWeaponizedVehicle; // this is set at spawn
@@ -69,6 +66,13 @@ namespace GangWarSandbox.Peds
             CyclesAlive++;
             LastUpdateTime = Game.GameTime;
 
+            if (Game.GameTime - LastStuckDetectionTime >= 1000)
+            {
+                UpdateStuckDetection();
+                LastStuckDetectionTime = Game.GameTime;
+            }
+
+            // Destroy if empty
             if (IsEmpty())
             {
                 Destroy();
@@ -77,6 +81,7 @@ namespace GangWarSandbox.Peds
 
             if (JustSpawned) JustSpawned = false;
 
+            // Ensure the Squad has a leader
             if (SquadLeader == null || SquadLeader.IsDead || !SquadLeader.Exists())
                 PromoteLeader();
 
@@ -186,6 +191,7 @@ namespace GangWarSandbox.Peds
             return points;
         }
 
+        // Get the ideal blip visibility of the ped, given fog of war, health, distance, etc.
         private int GetDesiredBlipVisibility(Ped ped, Team team)
         {
             int maxAlpha;

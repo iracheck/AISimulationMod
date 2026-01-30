@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using GangWarSandbox.Utilities;
 using static GangWarSandbox.Peds.Squad;
 using GTA.Native;
+using GangWarSandbox.MapElements;
 
 namespace GangWarSandbox.Gamemodes
 {
@@ -220,7 +221,7 @@ namespace GangWarSandbox.Gamemodes
         /// <param name="squad">The squad that was wiped out</param>
         public virtual Vector3 GetTarget(Squad s)
         {
-            List<CapturePoint> capturePoints = Mod.CapturePoints;
+            List<CapturePoint> capturePoints = MapElementManager.CapturePoints;
             Vector3 target = Vector3.Zero;
 
             if (s.Role == SquadRole.AssaultCapturePoint)
@@ -296,7 +297,7 @@ namespace GangWarSandbox.Gamemodes
         /// </summary>
         public void ClearPreviousGamemode()
         {
-            Mod.ClearAllPoints();
+            MapElementManager.ClearAllPoints();
             Mod.CleanupAll();
         }
 

@@ -87,6 +87,7 @@
     <Compile Include="Core\Peds\Squad\Squad.Core.cs" />
     <Compile Include="Core\Backend\Gameplay\VehicleSet.cs" />
     <Compile Include="Core\StrategyAI\StrategyAIHelpers.cs" />
+    <Compile Include="Core\World\MapElementManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Core\Backend\Gameplay\Team.cs" />
   </ItemGroup>

@@ -13,6 +13,7 @@ using GangWarSandbox.Utilities;
 using GangWarSandbox.Gamemodes.Survival;
 using System.Windows.Forms;
 using System.Diagnostics;
+using GangWarSandbox.MapElements;
 
 namespace GangWarSandbox.Gamemodes
 {
@@ -66,7 +67,7 @@ namespace GangWarSandbox.Gamemodes
 
         public override void OnStart()
         {
-            Mod.ClearAllPoints();
+            MapElementManager.ClearAllPoints();
             Mod.PlayerTeam = 0;
             TimeStart = Game.GameTime;
             
@@ -225,7 +226,7 @@ namespace GangWarSandbox.Gamemodes
 
         public override void TerminateGamemode()
         {
-            Mod.ClearAllPoints();
+            MapElementManager.ClearAllPoints();
             base.TerminateGamemode();
         }
 

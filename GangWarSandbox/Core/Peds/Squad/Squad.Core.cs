@@ -50,7 +50,7 @@ namespace GangWarSandbox.Peds
 
         // Abstract Orders
         // these are orders that come from the "Strategy AI" of each team
-        public CapturePoint TargetPoint; // the location that the squad's role will be applied to-- variable
+        public MapElements.CapturePoint TargetPoint; // the location that the squad's role will be applied to-- variable
 
         // AI 
         public SquadRole Role;

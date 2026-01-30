@@ -10,7 +10,7 @@ using GangWarSandbox.Peds;
 using System.Windows.Forms;
 using System.Drawing;
 
-namespace GangWarSandbox
+namespace GangWarSandbox.MapElements
 {
     public class CapturePoint
     {
@@ -76,7 +76,7 @@ namespace GangWarSandbox
             PointBlip.Position = position; // Set the blip position to the capture point location
             PointBlip.Scale = 0.8f;
 
-            PointID = ModData.CapturePoints.Count + 1;
+            PointID = MapElementManager.CapturePoints.Count + 1;
 
             if (PointID <= CapturePointIcons.Length) PointBlip.Sprite = CapturePointIcons[PointID - 1]; 
             else PointBlip.Sprite = FallbackIcon;

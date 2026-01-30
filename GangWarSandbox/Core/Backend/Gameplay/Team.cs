@@ -64,6 +64,26 @@ namespace GangWarSandbox
         const int MIN_SQUAD_SIZE = 3;
         const float SQUAD_SIZE_MULT = 0.2f;
 
+        public static readonly List<BlipSprite> BlipSprites = new List<BlipSprite>
+        {
+            BlipSprite.Number1,
+            BlipSprite.Number2,
+            BlipSprite.Number3,
+            BlipSprite.Number4,
+            BlipSprite.Number5,
+            BlipSprite.Number6
+        };
+
+        public static readonly Dictionary<Color, BlipColor> TeamColors = new Dictionary<Color, BlipColor>
+        {
+            { Color.Green, BlipColor.Green },
+            { Color.Red, BlipColor.Red },
+            { Color.Blue, BlipColor.Blue },
+            { Color.Yellow, BlipColor.Yellow },
+            { Color.Purple, BlipColor.Purple },
+            { Color.Orange, BlipColor.Orange }
+        };
+
 
 
         public Team(string name)
@@ -204,6 +224,43 @@ namespace GangWarSandbox
 
             Blips.Add(blip);
 
+        }
+
+        public void ApplyFactionToTeam(string factionName)
+        {
+            if (ModData.Factions.TryGetValue(factionName, out var faction))
+            {
+                Models = faction.Models;
+                Faction = faction;
+                Tier1Weapons = faction.Tier1Weapons;
+                Tier2Weapons = faction.Tier2Weapons;
+                Tier3Weapons = faction.Tier3Weapons;
+                MAX_SOLDIERS = faction.MaxSoldiers;
+                BaseHealth = faction.BaseHealth;
+                Accuracy = faction.Accuracy;
+                TierUpgradeMultiplier = faction.TierUpgradeMultiplier;
+                TeamVehicles = faction.VehicleSet;
+
+                TeamIndex = ModData.Teams.IndexOf(this);
+
+                SetColors();
+            }
+        }
+
+        public void SetColors()
+        {
+            List<BlipColor> blipColors = TeamColors.Values.ToList();
+            List<Color> colors = TeamColors.Keys.ToList();
+
+            if (TeamIndex >= blipColors.Count)
+            {
+                return;
+            }
+            else
+            {
+                BlipColor = blipColors[TeamIndex];
+                GenericColor = colors[TeamIndex];
+            }
         }
 
         public void Cleanup()

@@ -44,28 +44,6 @@ namespace GangWarSandbox
         public Dictionary<string, Faction> Factions = new Dictionary<string, Faction>();
         public Dictionary<Team, float> LastSquadSpawnTime = new Dictionary<Team, float>(); // Track last spawn time for each team to prevent spamming or crowding
 
-        public List<BlipSprite> BlipSprites = new List<BlipSprite>
-        {
-            BlipSprite.Number1,
-            BlipSprite.Number2,
-            BlipSprite.Number3,
-            BlipSprite.Number4,
-            BlipSprite.Number5,
-            BlipSprite.Number6
-        };
-
-        public static readonly Dictionary<Color, BlipColor> TeamColors = new Dictionary<Color, BlipColor>
-        {
-            { Color.Green, BlipColor.Green },
-            { Color.Red, BlipColor.Red },
-            { Color.Blue, BlipColor.Blue },
-            { Color.Yellow, BlipColor.Yellow },
-            { Color.Purple, BlipColor.Purple },
-            { Color.Orange, BlipColor.Orange }
-        };
-
-
-
         // Tracked Peds
         public List<Ped> DeadPeds = new List<Ped>();
         public List<Vehicle> SquadlessVehicles = new List<Vehicle>();
@@ -397,47 +375,6 @@ namespace GangWarSandbox
                 }
 
                 DeadPeds.Clear();
-            }
-        }
-
-        public void ApplyFactionToTeam(Team team, string factionName)
-        {
-            if (Factions.TryGetValue(factionName, out var faction))
-            {
-                team.Models = faction.Models;
-                team.Faction = faction;
-                team.Tier1Weapons = faction.Tier1Weapons;
-                team.Tier2Weapons = faction.Tier2Weapons;
-                team.Tier3Weapons = faction.Tier3Weapons;
-                team.MAX_SOLDIERS = faction.MaxSoldiers;
-                team.BaseHealth = faction.BaseHealth;
-                team.Accuracy = faction.Accuracy;
-                team.TierUpgradeMultiplier = faction.TierUpgradeMultiplier;
-                team.TeamIndex = Teams.IndexOf(team);
-
-                team.TeamVehicles = faction.VehicleSet;
-
-                SetColors(team);
-            }
-        }
-
-        public void SetColors(Team team)
-        {
-            if (team == null || team.TeamIndex < 0) return;
-
-            int teamIndex = team.TeamIndex;
-
-            List<BlipColor> blipColors = TeamColors.Values.ToList();
-            List<Color> colors = TeamColors.Keys.ToList();
-
-            if (teamIndex >= blipColors.Count)
-            {
-                return;
-            }
-            else
-            {
-                team.BlipColor = blipColors[teamIndex];
-                team.GenericColor = colors[teamIndex];
             }
         }
 

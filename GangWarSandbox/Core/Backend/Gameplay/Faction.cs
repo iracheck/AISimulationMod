@@ -10,8 +10,6 @@ namespace GangWarSandbox
 {
     public class Faction
     {
-
-
         public string Name;
         public string[] Models;
         public string Tier4Model; // default will use one of the regular models (not req field)

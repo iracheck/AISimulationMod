@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using GangWarSandbox;
+using GangWarSandbox.MapElements;
 using GangWarSandbox.Peds;
 using GTA;
 
@@ -39,7 +40,7 @@ namespace GangWarSandbox.Core.StrategyAI
             List<CapturePoint> hostilePoints = new List<CapturePoint>();
 
             // Collect all non-owned capture points
-            foreach (var point in ModData.CapturePoints)
+            foreach (var point in MapElementManager.CapturePoints)
             {
                 if (point == null) continue;
 
@@ -51,7 +52,7 @@ namespace GangWarSandbox.Core.StrategyAI
 
             if (hostilePoints.Count == 0) return 0; // No hostile capture points
 
-            float percentOwned = 1.0f - (hostilePoints.Count / ModData.CapturePoints.Count);
+            float percentOwned = 1.0f - (hostilePoints.Count / MapElementManager.CapturePoints.Count);
 
             int squadsWithRole = GetNumberOfSquadsWithRole(ownTeam, Squad.SquadRole.AssaultCapturePoint);
 
@@ -90,7 +91,7 @@ namespace GangWarSandbox.Core.StrategyAI
             List<CapturePoint> friendlyPoints = new List<CapturePoint>();
 
             // Collect all non-owned capture points
-            foreach (var point in ModData.CapturePoints)
+            foreach (var point in MapElementManager.CapturePoints)
             {
                 if (point == null) continue;
 
@@ -100,7 +101,7 @@ namespace GangWarSandbox.Core.StrategyAI
                 }
             }
 
-            float percentOwned = (float)friendlyPoints.Count/ModData.CapturePoints.Count;
+            float percentOwned = (float)friendlyPoints.Count/MapElementManager.CapturePoints.Count;
             int squadsWithRole = GetNumberOfSquadsWithRole(ownTeam, Squad.SquadRole.DefendCapturePoint);
 
             // Calculate the need based on the percentage of owned points

@@ -108,7 +108,7 @@ namespace GangWarSandbox
                 Teams.Add(new Team((i + 1).ToString())); // Initialize teams with default names and groups
                 LastSquadSpawnTime[Teams[i]] = 0; // Initialize last spawn time for each team
 
-                Teams[i].BlipSprite = BlipSprites[i]; // Assign a unique blip sprite for each team (for spawnpoints)
+                Teams[i].BlipSprite = Team.BlipSprites[i]; // Assign a unique blip sprite for each team (for spawnpoints)
             }
 
             Logger.LogDebug(GWSettings.MAX_CORPSES.ToString() + GWSettings.MAX_SQUADLESS_VEHICLES.ToString() + GWSettings.VEHICLE_AI_UPDATE_FREQUENCY.ToString()

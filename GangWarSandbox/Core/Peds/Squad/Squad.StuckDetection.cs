@@ -15,7 +15,8 @@ namespace GangWarSandbox.Peds
 
         bool IsStuck()
         {
-            if (!SquadLeader.IsInVehicle() || CyclesAlive <= 10) return false;
+            // 10 cycles is "roughly" 2 seconds, assuming the squad updates 5 times per second.
+            if (!SquadLeader.IsInVehicle() || CyclesAlive < 10) return false;
 
             float distanceToTarget = SquadLeader.CurrentVehicle.Position.DistanceTo(Waypoints.Last());
 

@@ -9,7 +9,7 @@ using Newtonsoft.Json;
 
 namespace GangWarSandbox.Core.Backend.File_System.SaveData
 {
-    internal class PointSaveData
+    public class PointSaveData
     {
         public string Name = "";
 

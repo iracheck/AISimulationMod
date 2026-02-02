@@ -10,13 +10,11 @@ using System.Threading.Tasks;
 
 namespace GangWarSandbox.Core.Backend.File_System.SaveData
 {
-    internal class PointSaveLoader
+    public class PointSaveLoader
     {
         public List<PointSaveData> SavedData = new List<PointSaveData>();
-        public static PointSaveLoader Instance { get; } = new PointSaveLoader();
         const string savePath = ModFiles.SAVEDATA_PATH + "/InfiniteBattle/";
 
-        //
         GangWarSandbox Mod = GangWarSandbox.Instance;
 
         //
@@ -43,9 +41,14 @@ namespace GangWarSandbox.Core.Backend.File_System.SaveData
             return data;
         }
 
-        public void SaveFromCurrent(PointSaveData data = null)
+        /// <summary>
+        /// Saves the given data to a file, and if no data is provided then it will save the current world format.
+        /// </summary>
+        /// <param name="data"></param>
+        public void SaveToFile(string name = null, PointSaveData data = null)
         {
             if (data == null) data = CreateDataFromWorld();
+            if (name == null) name = "unnamed_save_" + (SavedData.Count + 1).ToString();
 
             try
             {

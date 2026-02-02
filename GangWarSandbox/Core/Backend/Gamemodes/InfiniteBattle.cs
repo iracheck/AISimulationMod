@@ -36,10 +36,15 @@ namespace GangWarSandbox.Gamemodes
             var loadMenu = new NativeMenu("Load Save", "LOAD SAVE");
             BattleSetupUI.MenuPool.Add(loadMenu);
 
-            var saveButton = new textbo
-            // add a "save new pointdata" option
+            var saveButton = new NativeItem("Save Current Setup", "Saves the currently placed spawnpoints and capture points to a JSON file that is later loadable.");
 
-            foreach (var item in PointSaveLoader.Instance.SavedData)
+            saveButton.Activated += (item, args) =>
+            {
+                Mod.PointSaveDataLoader.SaveToFile();
+                BattleSetupUI.RebuildMenu();
+            };
+
+            foreach (var item in Mod.PointSaveDataLoader.SavedData)
             {
                 // parse item, ensure its validity, and then and place into a list
                 // then add an event to load it when the player clicks yes
@@ -48,7 +53,7 @@ namespace GangWarSandbox.Gamemodes
 
             return new List<NativeMenu> { loadMenu }; 
         }
-        
+
         public override void OnTickGameRunning()
         {
 

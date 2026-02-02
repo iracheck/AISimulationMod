@@ -1,5 +1,6 @@
 ﻿using GangWarSandbox.Core;
 using GangWarSandbox.Gamemodes;
+using GangWarSandbox.MapElements;
 using GTA;
 using LemonUI;
 using LemonUI.Menus;
@@ -216,7 +217,7 @@ namespace GangWarSandbox
                 {
                     if (factionNames.Length - 1 >= teamIndex) teamFactionItem.SelectedIndex = teamIndex;
                     else teamFactionItem.SelectedIndex = 0;
-                    Mod.ApplyFactionToTeam(Mod.Teams[teamIndex], teamFactionItem.SelectedItem); // Apply default faction
+                    Mod.Teams[teamIndex].ApplyFactionToTeam(teamFactionItem.SelectedItem);
                     SavedFactions[teamIndex] = teamFactionItem.SelectedItem; // Save random selection
                 }
 
@@ -226,7 +227,7 @@ namespace GangWarSandbox
                 {
                     string selected = teamFactionItem.SelectedItem;
                     SavedFactions[teamIndex] = selected;
-                    Mod.ApplyFactionToTeam(Mod.Teams[teamIndex], selected);
+                    Mod.Teams[teamIndex].ApplyFactionToTeam(selected);
                 };
 
                 TeamFactionItems.Add(teamFactionItem);
@@ -298,17 +299,17 @@ namespace GangWarSandbox
             {
                 int index = i;
                 var addSpawnpoint = new NativeItem($"Add Spawnpoint - Team {i + 1}", $"Adds a spawnpoint for team {i + 1} at your current location, or at your waypoint if you have one.");
-                addSpawnpoint.Activated += (item, args) => Mod.AddSpawnpoint(index);
+                addSpawnpoint.Activated += (item, args) => MapElementManager.AddSpawnpoint(index);
                 addSpawnpoint.Enabled = gm.EnableParameter_Spawnpoints;
                 SpawnpointMenu.Add(addSpawnpoint);
             }
 
             var addCapPt = new NativeItem("Add Capture Point", "Adds a capture point at your current location, or at your waypoint if you have one.");
             addCapPt.Enabled = gm.EnableParameter_CapturePoints;
-            addCapPt.Activated += (item, args) => Mod.AddCapturePoint();
+            addCapPt.Activated += (item, args) => MapElementManager.AddCapturePoint();
 
             var clear = new NativeItem("Clear All Points", "Clears all spawnpoints on the map. There is no undo button for this action.");
-            clear.Activated += (item, args) => Mod.ClearAllPoints();
+            clear.Activated += (item, args) => MapElementManager.ClearAllPoints();
 
             SpawnpointMenu.Add(addCapPt);
 

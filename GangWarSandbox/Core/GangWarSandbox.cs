@@ -31,6 +31,7 @@ namespace GangWarSandbox
     public class GangWarSandbox : Script
     {
         public static GangWarSandbox Instance { get; private set; }
+        public PointSaveLoader PointSaveDataLoader;
 
         // Configuration
         public bool DEBUG => GWSettings.DEBUG;
@@ -70,12 +71,9 @@ namespace GangWarSandbox
         public GangWarSandbox()
         {
             Instance = this;
-
-            // Initialize the point save loader, although it wont be used for now
-            PointSaveLoader loader = new PointSaveLoader();
-
             CurrentGamemode = AvaliableGamemodes[0];
 
+            PointSaveDataLoader = new PointSaveLoader();
 
             // Ensure valid directories exist on startup
             ModFiles.EnsureDirectoriesExist();

@@ -126,7 +126,7 @@ namespace GangWarSandbox.Gamemodes
                 var selectedFaction = level1Enemy.SelectedItem;
                 if (selectedFaction != null && Mod.Factions.ContainsKey(selectedFaction))
                 {
-                    Mod.ApplyFactionToTeam(Mod.Teams[1], selectedFaction);
+                    Mod.Teams[1].ApplyFactionToTeam(selectedFaction);
                 }
             };
             level1Enemy.SelectedItem = Mod.Factions.ContainsKey(preferredFaction1)
@@ -142,7 +142,7 @@ namespace GangWarSandbox.Gamemodes
                 var selectedFaction = level2Enemy.SelectedItem;
                 if (selectedFaction != null && Mod.Factions.ContainsKey(selectedFaction))
                 {
-                    Mod.ApplyFactionToTeam(Mod.Teams[2], selectedFaction);
+                    Mod.Teams[2].ApplyFactionToTeam(selectedFaction);
                 }
             };
             level2Enemy.SelectedItem = Mod.Factions.ContainsKey(preferredFaction2)
@@ -158,7 +158,7 @@ namespace GangWarSandbox.Gamemodes
                 var selectedFaction = level3Enemy.SelectedItem;
                 if (selectedFaction != null && Mod.Factions.ContainsKey(selectedFaction))
                 {
-                    Mod.ApplyFactionToTeam(Mod.Teams[3], selectedFaction);
+                    Mod.Teams[3].ApplyFactionToTeam(selectedFaction);
                 }
             };
             level3Enemy.SelectedItem = Mod.Factions.ContainsKey(preferredFaction3)

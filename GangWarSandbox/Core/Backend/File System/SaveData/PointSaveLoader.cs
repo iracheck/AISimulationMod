@@ -1,4 +1,5 @@
-﻿using GangWarSandbox.Utilities;
+﻿using GangWarSandbox.MapElements;
+using GangWarSandbox.Utilities;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -11,20 +12,25 @@ namespace GangWarSandbox.Core.Backend.File_System.SaveData
 {
     internal class PointSaveLoader
     {
-        string savePath = ModFiles.SAVEDATA_PATH + "/InfiniteBattle/";
-        List<PointSaveData> SavedData;
-        GangWarSandbox Instance = GangWarSandbox.Instance;
+        public List<PointSaveData> SavedData = new List<PointSaveData>();
+        public static PointSaveLoader Instance { get; } = new PointSaveLoader();
+        const string savePath = ModFiles.SAVEDATA_PATH + "/InfiniteBattle/";
 
-        private PointSaveData CreateDataFromWorld()
+        //
+        GangWarSandbox Mod = GangWarSandbox.Instance;
+
+        //
+
+        public PointSaveData CreateDataFromWorld()
         {
             PointSaveData data = new PointSaveData();
 
-            foreach (var capturePoint in Instance.CapturePoints)
+            foreach (var capturePoint in MapElementManager.CapturePoints)
             {
                 if (capturePoint != null) data.CapturePoints.Add(capturePoint.Position);
             }
 
-            foreach (var t in Instance.Teams)
+            foreach (var t in Mod.Teams)
             {
                 data.Teams.Add(t.Name);
 

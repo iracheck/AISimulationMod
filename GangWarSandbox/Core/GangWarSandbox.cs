@@ -6,6 +6,7 @@
 
 using GangWarSandbox;
 using GangWarSandbox.Core;
+using GangWarSandbox.Core.Backend.File_System.SaveData;
 using GangWarSandbox.Gamemodes;
 using GangWarSandbox.MapElements;
 using GangWarSandbox.Peds;
@@ -69,7 +70,12 @@ namespace GangWarSandbox
         public GangWarSandbox()
         {
             Instance = this;
+
+            // Initialize the point save loader, although it wont be used for now
+            PointSaveLoader loader = new PointSaveLoader();
+
             CurrentGamemode = AvaliableGamemodes[0];
+
 
             // Ensure valid directories exist on startup
             ModFiles.EnsureDirectoriesExist();

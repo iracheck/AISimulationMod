@@ -13,6 +13,7 @@ using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 using LemonUI;
 using LemonUI.Menus;
+using GangWarSandbox.Core.Backend.File_System.SaveData;
 
 namespace GangWarSandbox.Gamemodes
 {
@@ -32,9 +33,20 @@ namespace GangWarSandbox.Gamemodes
 
         public override List<NativeMenu> ConstructGamemodeMenus()
         {
-            var LoadMenu = new NativeMenu("Load Save", "LOAD SAVE");
+            var loadMenu = new NativeMenu("Load Save", "LOAD SAVE");
+            BattleSetupUI.MenuPool.Add(loadMenu);
 
-            return new List<NativeMenu> { LoadMenu }; 
+            var saveButton = new textbo
+            // add a "save new pointdata" option
+
+            foreach (var item in PointSaveLoader.Instance.SavedData)
+            {
+                // parse item, ensure its validity, and then and place into a list
+                // then add an event to load it when the player clicks yes
+            }
+
+
+            return new List<NativeMenu> { loadMenu }; 
         }
         
         public override void OnTickGameRunning()
